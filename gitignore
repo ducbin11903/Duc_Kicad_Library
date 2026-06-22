@@ -1,0 +1,13 @@
+# Temp folder khi chạy generate.py
+_temp/
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+
+# KiCad cache/backup
+*.bak
+*-backups/
+fp-info-cache
+*.kicad_prl
