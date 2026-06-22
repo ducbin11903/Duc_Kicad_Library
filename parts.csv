@@ -1,3 +1,4 @@
 lcsc,name,category,note
 C15742,STM32F405RGT6,MCU,Main controller ROS board
 C6186,AMS1117-3.3,Regulator,LDO 3.3V
+C9637,ADM2483BRWZ-REEL,Isolators/Digital Isolators,Isolated RS-485 Transceiver
