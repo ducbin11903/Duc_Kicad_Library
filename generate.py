@@ -142,8 +142,8 @@ def process_footprints(stats):
             with open(src, 'r', encoding='utf-8') as f:
                 content = f.read()
 
-            # FIX ĐƯỜNG DẪN 3D SANG BIẾN MÔI TRƯỜNG KICAD9_USER_LIB
-            fixed_content = model_pattern.sub(r'(model "${KICAD9_USER_LIB}/3dmodels/' + LIB_NAME + r'.3dshapes/\1"', content)
+            # FIX ĐƯỜNG DẪN 3D SANG BIẾN MÔI TRƯỜNG KICAD_USER_LIB
+            fixed_content = model_pattern.sub(r'(model "${KICAD_USER_LIB}/3dmodels/' + LIB_NAME + r'.3dshapes/\1"', content)
 
             with open(dst, 'w', encoding='utf-8') as f:
                 f.write(fixed_content)

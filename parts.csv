@@ -4,3 +4,4 @@ C6186,AMS1117-3.3,Regulator,LDO 3.3V
 C9637,ADM2483BRWZ-REEL,Isolators/Digital Isolators,Isolated RS-485 Transceiver
 C1850418,ICM-42688-P,"Sensors, Transducers/Motion Sensors/IMUs (Inertial Measurement Units)",High Precision 6-Axis MEMS MotionTracking Device
 C2150635,"TB9051FTG,EL","Integrated Circuits (ICs)/Power Management (PMIC)/Motor Drivers, Controllers","UQFN-28-EP(6x6) Motor Drivers, Controllers RoHS"
+C521608,STM32G474RET6,MCU,"Arm Cortex-M4 32-bit MCU+FPU, 170 MHz / 213 DMIPS, 128 KB SRAM, rich analog, math acc, 184 ps 12 chan Hi-res timer"
