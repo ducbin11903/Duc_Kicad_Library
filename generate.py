@@ -184,8 +184,8 @@ def main():
         return
 
     lines = []
-    # Dùng utf-8-sig để bỏ qua ký tự BOM ẩn nếu file được lưu từ Excel
-    with open('parts.csv', 'r', encoding='utf-8-sig') as f:
+    # Dùng utf-8-sig và errors='replace' để chống sập khi gặp ký tự tiếng Việt mã hóa ANSI từ Excel
+    with open('parts.csv', 'r', encoding='utf-8-sig', errors='replace') as f:
         reader = csv.reader(f)
         header = next(reader, None)
         
