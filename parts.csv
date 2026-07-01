@@ -7,6 +7,7 @@ C2150635,"TB9051FTG,EL","Integrated Circuits (ICs)/Power Management (PMIC)/Motor
 C521608,STM32G474RET6,MCU,"Arm Cortex-M4 32-bit MCU+FPU, 170 MHz / 213 DMIPS, 128 KB SRAM, rich analog, math acc, 184 ps 12 chan Hi-res timer"
 C7500381,YAGEO CC0402KRX7R6BB105,Passives/Capacitors/Ceramic Capacitors,CAP CER 1uF 10V X7R 0402
 C131394,YAGEO CC0402KRX7R9BB104,Passives/Capacitors/Ceramic Capacitors,CAP CER 100nF 50V X7R 0402
-C723999,YAGEO CC0402MRX5R7BB475,,CAP CER 4.7uF 16V X5R 0402
+C723999,YAGEO CC0402MRX5R7BB475,Passives/Capacitors/Ceramic Capacitors,CAP CER 4.7uF 16V X5R 0402
 C7500381,YAGEO CC0402KRX7R6BB105,Passives/Capacitors/Ceramic Capacitors,CAP CER 1uF 10V X7R 0402
-C52178237,PROD Tech PBBHAQ2012H-102T10,Passives/Filters/Ferrite Beads and Chips,300m? 1 ±25% 1k?@100MHz 0805 Ferrite Beads and Chips RoHS
+C52178237,PROD Tech PBBHAQ2012H-102T10,Passives/Filters/Ferrite Beads and Chips,300m? 1 ï¿½25% 1k?@100MHz 0805 Ferrite Beads and Chips RoHS
+C5219327,TPSM63603RDHR,Power Supplies/Power Suppliers - Board Mount/DC DC Converters,Power module with 3V to 36V input, 1V to 16V output, and 3A current
