@@ -10,4 +10,15 @@ C131394,YAGEO CC0402KRX7R9BB104,Passives/Capacitors/Ceramic Capacitors,CAP CER 1
 C723999,YAGEO CC0402MRX5R7BB475,Passives/Capacitors/Ceramic Capacitors,CAP CER 4.7uF 16V X5R 0402
 C7500381,YAGEO CC0402KRX7R6BB105,Passives/Capacitors/Ceramic Capacitors,CAP CER 1uF 10V X7R 0402
 C52178237,PROD Tech PBBHAQ2012H-102T10,Passives/Filters/Ferrite Beads and Chips,300m? 1 ï¿½25% 1k?@100MHz 0805 Ferrite Beads and Chips RoHS
-C5219327,TPSM63603RDHR,Power Supplies/Power Suppliers - Board Mount/DC DC Converters,Power module with 3V to 36V input, 1V to 16V output, and 3A current
+C5219327,TPSM63603RDHR,Power Supplies/Power Suppliers - Board Mount/DC DC Converters,Power module with 3V to 36V input  1V to 16V output  and 3A current
+C132170,YAGEO CC1206KKX7R9BB475,Passives/Capacitors/Ceramic Capacitors,CAP CER 4.7uF 50V X7R 1206
+C513711,YAGEO CC1206MKX5R6BB476,Passives/Capacitors/Ceramic Capacitors,CAP CER 47uF 10V X5R 1206
+C728576,YAGEO RT0402FRE07100KL,Passives/Resistors/Chip Resistor - Surface Mount,RES 100k? ±1% 62.5mW 0402
+C513708,YAGEO RT0402BRE0710KL,Passives/Resistors/Chip Resistor - Surface Mount,RES 10k? ±0.1% 62.5mW 0402
+C325464,YAGEO CC0402KRX5R7BB105,"	Passives/Capacitors/Ceramic Capacitors",CAP CER 1uF 16V X5R 0402
+C60474,YAGEO CC0402KRX7R7BB104,Passives/Capacitors/Ceramic Capacitors,CAP CER 100nF 16V X7R 0402
+C853026,YAGEO RT0402BRE0713KL,Passives/Resistors/Chip Resistor - Surface Mount,RES 13k? ±0.1% 63mW 0402
+C852775,YAGEO RT0402BRD0740K2L,Passives/Resistors/Chip Resistor - Surface Mount,RES 40.2k? ±0.1% 62.5mW 0402
+,,,
+,,,
+,,, 
