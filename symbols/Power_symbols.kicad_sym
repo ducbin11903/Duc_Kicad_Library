@@ -124,7 +124,7 @@
 		)
 		(embedded_fonts no)
 	)
-	(symbol "+VBAT"
+	(symbol "+POWER"
 		(power)
 		(pin_names
 			(offset 0)
@@ -141,7 +141,7 @@
 				(hide yes)
 			)
 		)
-		(property "Value" "+VBAT"
+		(property "Value" "+POWER"
 			(at 0 3.556 0)
 			(effects
 				(font
@@ -185,7 +185,7 @@
 				(hide yes)
 			)
 		)
-		(symbol "+VBAT_0_1"
+		(symbol "+POWER_0_1"
 			(polyline
 				(pts
 					(xy -0.762 1.27) (xy 0 2.54)
@@ -223,7 +223,7 @@
 				)
 			)
 		)
-		(symbol "+VBAT_1_1"
+		(symbol "+POWER_1_1"
 			(pin power_in line
 				(at 0 0 90)
 				(length 0)
@@ -246,7 +246,7 @@
 		)
 		(embedded_fonts no)
 	)
-	(symbol "-VBAT"
+	(symbol "-POWER"
 		(power)
 		(pin_names
 			(offset 0)
@@ -263,7 +263,7 @@
 				(hide yes)
 			)
 		)
-		(property "Value" "-VBAT"
+		(property "Value" "-POWER"
 			(at 0 3.81 0)
 			(effects
 				(font
@@ -307,7 +307,7 @@
 				(hide yes)
 			)
 		)
-		(symbol "-VBAT_0_1"
+		(symbol "-POWER_0_1"
 			(polyline
 				(pts
 					(xy 0 0) (xy 0 1.27) (xy 0.762 1.27) (xy 0 2.54) (xy -0.762 1.27) (xy 0 1.27)
@@ -321,7 +321,7 @@
 				)
 			)
 		)
-		(symbol "-VBAT_1_0"
+		(symbol "-POWER_1_0"
 			(pin power_in line
 				(at 0 0 90)
 				(length 0)

@@ -348,7 +348,20 @@ def main():
     processed_parts = []
     failed_parts    = []
 
-    use_shell = (os.name == "nt")
+    # Tim duong dan easyeda2kicad trong .venv/Scripts (Windows) hoac .venv/bin (Mac/Linux)
+    scripts_dir  = os.path.dirname(sys.executable)
+    easyeda_name = "easyeda2kicad.exe" if os.name == "nt" else "easyeda2kicad"
+    easyeda_cmd  = os.path.join(scripts_dir, easyeda_name)
+    if not os.path.isfile(easyeda_cmd):
+        found = shutil.which("easyeda2kicad")
+        if found:
+            easyeda_cmd = found
+        else:
+            print(f"LOI: Khong tim thay easyeda2kicad")
+            print(f"  Scripts dir: {scripts_dir}")
+            print(f"  Chay: pip install easyeda2kicad")
+            sys.exit(1)
+    print(f"easyeda2kicad: {easyeda_cmd}\n")
 
     for i, part in enumerate(to_download, 1):
         lcsc_id  = part["lcsc"]
@@ -362,11 +375,10 @@ def main():
         label = f" - {note}" if note else ""
         print(f"[{i:2}/{len(to_download)}] [{category}] {lcsc_id}{label}")
 
-        # SỬ DỤNG TRỰC TIẾP LỆNH MẶC ĐỊNH
         result = subprocess.run(
-            ["easyeda2kicad", "--full", f"--lcsc_id={lcsc_id}",
+            [easyeda_cmd, "--full", f"--lcsc_id={lcsc_id}",
              "--output", os.path.join("temp", "temp")],
-            capture_output=True, text=True, shell=use_shell
+            capture_output=True, text=True
         )
 
         if result.returncode != 0:
