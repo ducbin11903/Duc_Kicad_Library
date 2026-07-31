@@ -602,7 +602,7 @@
 		(in_bom yes)
 		(on_board yes)
 		(property "Reference" "U"
-			(at 0 22.86 0)
+			(at 0 21.59 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -682,8 +682,8 @@
 		)
 		(symbol "TB9051FTG,EL_0_1"
 			(rectangle
-				(start -8.89 20.32)
-				(end 8.89 -17.78)
+				(start -12.7 20.32)
+				(end 12.7 -17.78)
 				(stroke
 					(width 0)
 					(type default)
@@ -692,19 +692,8 @@
 					(type background)
 				)
 			)
-			(circle
-				(center -7.62 19.05)
-				(radius 0.38)
-				(stroke
-					(width 0)
-					(type default)
-				)
-				(fill
-					(type none)
-				)
-			)
 			(pin unspecified line
-				(at -11.43 17.78 0)
+				(at -15.24 17.78 0)
 				(length 2.54)
 				(name "OCC"
 					(effects
@@ -722,7 +711,7 @@
 				)
 			)
 			(pin unspecified line
-				(at -11.43 15.24 0)
+				(at -15.24 15.24 0)
 				(length 2.54)
 				(name "VCC"
 					(effects
@@ -740,7 +729,7 @@
 				)
 			)
 			(pin unspecified line
-				(at -11.43 12.7 0)
+				(at -15.24 12.7 0)
 				(length 2.54)
 				(name "ENB"
 					(effects
@@ -758,7 +747,7 @@
 				)
 			)
 			(pin unspecified line
-				(at -11.43 10.16 0)
+				(at -15.24 10.16 0)
 				(length 2.54)
 				(name "AGND"
 					(effects
@@ -776,7 +765,7 @@
 				)
 			)
 			(pin unspecified line
-				(at -11.43 7.62 0)
+				(at -15.24 7.62 0)
 				(length 2.54)
 				(name "EN"
 					(effects
@@ -794,7 +783,7 @@
 				)
 			)
 			(pin unspecified line
-				(at -11.43 5.08 0)
+				(at -15.24 5.08 0)
 				(length 2.54)
 				(name "NC"
 					(effects
@@ -812,7 +801,7 @@
 				)
 			)
 			(pin unspecified line
-				(at -11.43 2.54 0)
+				(at -15.24 2.54 0)
 				(length 2.54)
 				(name "OCM"
 					(effects
@@ -830,7 +819,7 @@
 				)
 			)
 			(pin unspecified line
-				(at -11.43 0 0)
+				(at -15.24 0 0)
 				(length 2.54)
 				(name "PWM1"
 					(effects
@@ -848,7 +837,7 @@
 				)
 			)
 			(pin unspecified line
-				(at -11.43 -2.54 0)
+				(at -15.24 -2.54 0)
 				(length 2.54)
 				(name "PWM2"
 					(effects
@@ -866,7 +855,7 @@
 				)
 			)
 			(pin unspecified line
-				(at -11.43 -5.08 0)
+				(at -15.24 -5.08 0)
 				(length 2.54)
 				(name "NC"
 					(effects
@@ -884,7 +873,7 @@
 				)
 			)
 			(pin unspecified line
-				(at -11.43 -7.62 0)
+				(at -15.24 -7.62 0)
 				(length 2.54)
 				(name "VBAT"
 					(effects
@@ -902,7 +891,7 @@
 				)
 			)
 			(pin unspecified line
-				(at -11.43 -10.16 0)
+				(at -15.24 -10.16 0)
 				(length 2.54)
 				(name "VBAT"
 					(effects
@@ -920,7 +909,7 @@
 				)
 			)
 			(pin unspecified line
-				(at -11.43 -12.7 0)
+				(at -15.24 -12.7 0)
 				(length 2.54)
 				(name "OUT1"
 					(effects
@@ -938,7 +927,7 @@
 				)
 			)
 			(pin unspecified line
-				(at -11.43 -15.24 0)
+				(at -15.24 -15.24 0)
 				(length 2.54)
 				(name "OUT1"
 					(effects
@@ -974,133 +963,7 @@
 				)
 			)
 			(pin unspecified line
-				(at 11.43 17.78 180)
-				(length 2.54)
-				(name "TEST2"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(number "28"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-			)
-			(pin unspecified line
-				(at 11.43 15.24 180)
-				(length 2.54)
-				(name "TEST1"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(number "27"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-			)
-			(pin unspecified line
-				(at 11.43 12.7 180)
-				(length 2.54)
-				(name "NC"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(number "26"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-			)
-			(pin unspecified line
-				(at 11.43 10.16 180)
-				(length 2.54)
-				(name "VBAT"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(number "25"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-			)
-			(pin unspecified line
-				(at 11.43 7.62 180)
-				(length 2.54)
-				(name "VBAT"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(number "24"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-			)
-			(pin unspecified line
-				(at 11.43 5.08 180)
-				(length 2.54)
-				(name "OUT2"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(number "23"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-			)
-			(pin unspecified line
-				(at 11.43 2.54 180)
-				(length 2.54)
-				(name "OUT2"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(number "22"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-			)
-			(pin unspecified line
-				(at 11.43 0 180)
+				(at 15.24 17.78 180)
 				(length 2.54)
 				(name "PGND"
 					(effects
@@ -1109,7 +972,7 @@
 						)
 					)
 				)
-				(number "21"
+				(number "15"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -1118,79 +981,7 @@
 				)
 			)
 			(pin unspecified line
-				(at 11.43 -2.54 180)
-				(length 2.54)
-				(name "PGND"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(number "20"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-			)
-			(pin unspecified line
-				(at 11.43 -5.08 180)
-				(length 2.54)
-				(name "PGND"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(number "19"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-			)
-			(pin unspecified line
-				(at 11.43 -7.62 180)
-				(length 2.54)
-				(name "DIAG"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(number "18"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-			)
-			(pin unspecified line
-				(at 11.43 -10.16 180)
-				(length 2.54)
-				(name "PGND"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(number "17"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-			)
-			(pin unspecified line
-				(at 11.43 -12.7 180)
+				(at 15.24 15.24 180)
 				(length 2.54)
 				(name "PGND"
 					(effects
@@ -1208,7 +999,7 @@
 				)
 			)
 			(pin unspecified line
-				(at 11.43 -15.24 180)
+				(at 15.24 12.7 180)
 				(length 2.54)
 				(name "PGND"
 					(effects
@@ -1217,7 +1008,205 @@
 						)
 					)
 				)
-				(number "15"
+				(number "17"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin unspecified line
+				(at 15.24 10.16 180)
+				(length 2.54)
+				(name "DIAG"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "18"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin unspecified line
+				(at 15.24 7.62 180)
+				(length 2.54)
+				(name "PGND"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "19"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin unspecified line
+				(at 15.24 5.08 180)
+				(length 2.54)
+				(name "PGND"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "20"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin unspecified line
+				(at 15.24 2.54 180)
+				(length 2.54)
+				(name "PGND"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "21"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin unspecified line
+				(at 15.24 0 180)
+				(length 2.54)
+				(name "OUT2"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "22"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin unspecified line
+				(at 15.24 -2.54 180)
+				(length 2.54)
+				(name "OUT2"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "23"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin unspecified line
+				(at 15.24 -5.08 180)
+				(length 2.54)
+				(name "VBAT"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "24"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin unspecified line
+				(at 15.24 -7.62 180)
+				(length 2.54)
+				(name "VBAT"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "25"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin unspecified line
+				(at 15.24 -10.16 180)
+				(length 2.54)
+				(name "NC"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "26"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin unspecified line
+				(at 15.24 -12.7 180)
+				(length 2.54)
+				(name "TEST1"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "27"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin unspecified line
+				(at 15.24 -15.24 180)
+				(length 2.54)
+				(name "TEST2"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "28"
 					(effects
 						(font
 							(size 1.27 1.27)

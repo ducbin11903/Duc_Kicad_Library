@@ -752,94 +752,6 @@
 		)
 		(embedded_fonts no)
 	)
-	(symbol "AGND"
-		(power)
-		(exclude_from_sim no)
-		(in_bom no)
-		(on_board no)
-		(property "Reference" "#PWR"
-			(at 0 0 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Value" "AGND"
-			(at 0 -0.254 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" ""
-			(at 0 0 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" ""
-			(at 0 0 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Power Symbol - Analog Ground"
-			(at 0 0 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(symbol "AGND_1_0"
-			(pin power_in line
-				(at 0 1.27 90)
-				(length 0)
-				(hide yes)
-				(name "-VBAT"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(number "1"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-			)
-		)
-		(symbol "AGND_1_1"
-			(polyline
-				(pts
-					(xy 0 1.27) (xy 0 2.54) (xy 0.762 2.54) (xy 0 3.81) (xy -0.762 2.54) (xy 0 2.54)
-				)
-				(stroke
-					(width 0)
-					(type solid)
-					(color 6 0 0 1)
-				)
-				(fill
-					(type color)
-					(color 255 255 255 1)
-				)
-			)
-		)
-		(embedded_fonts no)
-	)
 	(symbol "AMS1117-3.3"
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -1710,6 +1622,94 @@
 							(size 1.27 1.27)
 						)
 					)
+				)
+			)
+		)
+		(embedded_fonts no)
+	)
+	(symbol "DGND"
+		(power)
+		(exclude_from_sim no)
+		(in_bom no)
+		(on_board no)
+		(property "Reference" "#PWR"
+			(at 0 0 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "DGND"
+			(at 0 -0.254 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 0 0 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 0 0 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Power Symbol - Digital Ground"
+			(at 0 0 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(symbol "DGND_1_0"
+			(pin power_in line
+				(at 0 1.27 90)
+				(length 0)
+				(hide yes)
+				(name "-VBAT"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "1"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+		)
+		(symbol "DGND_1_1"
+			(polyline
+				(pts
+					(xy 0 1.27) (xy 0 2.54) (xy 0.762 2.54) (xy 0 3.81) (xy -0.762 2.54) (xy 0 2.54)
+				)
+				(stroke
+					(width 0)
+					(type solid)
+					(color 6 0 0 1)
+				)
+				(fill
+					(type color)
+					(color 255 255 255 1)
 				)
 			)
 		)
