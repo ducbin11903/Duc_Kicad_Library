@@ -305,6 +305,90 @@ def gen_kicad_sym(name,ref,desc,pins):
     for p,x in zip(B,xp(len(B))): ln.append(ps(p,x,-(hh+PIN_LEN),90))
     ln+=["  )",")"]; return "\n".join(ln)
 
+
+# ==============================================================================
+# COMPONENT FILE RESOLVER
+# Symbol  --Footprint property-->  .kicad_mod  --model path-->  .step / .wrl
+# ==============================================================================
+def find_symbol_block(name, lcsc, cat=None):
+    """Locate a symbol by name or LCSC. Returns (sym_file, block_dict) or (None,None)."""
+    files=[]
+    if cat:
+        c=sym_path(cat)
+        if os.path.exists(c): files.append(c)
+    if os.path.isdir(sym_dir()):
+        for fn in sorted(os.listdir(sym_dir())):
+            if fn.startswith(f"{LIB_PFX}-") and fn.endswith(".kicad_sym"):
+                fp=os.path.join(sym_dir(),fn)
+                if fp not in files: files.append(fp)
+    nl=(name or "").strip().lower()
+    ll=(lcsc or "").strip().lower()
+    for fp in files:
+        for b in extract_blocks(fp):
+            if nl and b["name"].strip().lower()==nl: return fp,b
+            if ll and (b["lcsc"] or "").strip().lower()==ll: return fp,b
+    return None,None
+
+
+def footprint_of(block):
+    """Footprint file stem stored in the symbol, e.g. 'Duc:SOT-23_L2.9' -> 'SOT-23_L2.9'."""
+    if not block: return ""
+    m=re.search(r'\(property\s+"Footprint"\s+"([^"]*)"',block["content"])
+    if not m: return ""
+    val=m.group(1).strip()
+    return val.split(":")[-1] if val else ""
+
+
+def find_file(root, basename, exts):
+    """Find a file by stem or full name anywhere under root."""
+    if not basename or not os.path.isdir(root): return None
+    stem=os.path.splitext(basename)[0].lower()
+    for dirpath,_,names in os.walk(root):
+        for n in names:
+            if not n.lower().endswith(exts): continue
+            if os.path.splitext(n)[0].lower()==stem: return os.path.join(dirpath,n)
+    return None
+
+
+def models_in_footprint(fp_path):
+    """Every 3D model file name referenced inside a .kicad_mod."""
+    out=[]
+    try: c=open(fp_path,encoding="utf-8").read()
+    except Exception: return out
+    for m in re.finditer(r'\(model\s+"([^"]+)"',c):
+        out.append(os.path.basename(m.group(1).replace("\\","/")))
+    return out
+
+
+def resolve_component(name, lcsc, cat):
+    """Resolve every file that belongs to one component, following the real links."""
+    res={"sym_file":None,"sym_name":None,"fp_name":"","fp_path":None,
+         "model_name":"","model_path":None}
+    sf,block=find_symbol_block(name,lcsc,cat)
+    if sf:
+        res["sym_file"]=sf; res["sym_name"]=block["name"]
+        fp_stem=footprint_of(block)
+        res["fp_name"]=fp_stem
+        if fp_stem:
+            res["fp_path"]=find_file(fp_dir(),fp_stem,(".kicad_mod",))
+    # fall back to a name match when the symbol carries no footprint field
+    if not res["fp_path"]:
+        for key in (name,lcsc):
+            hit=find_file(fp_dir(),key,(".kicad_mod",))
+            if hit: res["fp_path"]=hit; res["fp_name"]=os.path.splitext(os.path.basename(hit))[0]; break
+    # 3D model comes from inside the footprint file
+    if res["fp_path"]:
+        for mn in models_in_footprint(res["fp_path"]):
+            hit=find_file(m3d_dir(),mn,(".step",".stp",".wrl"))
+            if hit:
+                res["model_name"]=os.path.basename(hit); res["model_path"]=hit; break
+            res["model_name"]=res["model_name"] or mn
+    if not res["model_path"] and res["fp_name"]:
+        hit=find_file(m3d_dir(),res["fp_name"],(".step",".stp",".wrl"))
+        if hit: res["model_path"]=hit; res["model_name"]=os.path.basename(hit)
+    return res
+
+
 # ==============================================================================
 # DATA GRID — bordered, editable, filterable, pasteable
 # ==============================================================================
@@ -861,19 +945,28 @@ class LibTab(tk.Frame):
         self.lbl_n=tk.Label(top,text="",font=("Segoe UI",10,"bold"),bg=BG,fg=DARK)
         self.lbl_n.pack(side="right")
 
-        # Folder shortcuts bar
-        fb=tk.Frame(self,bg=PANEL,bd=1,relief="solid"); fb.pack(fill="x",padx=10,pady=(0,8))
-        inner=tk.Frame(fb,bg=PANEL); inner.pack(fill="x",padx=10,pady=8)
-        tk.Label(inner,text="Open folder:",font=("Segoe UI",9,"bold"),bg=PANEL,fg=TXT).pack(side="left",padx=(0,8))
-        Btn(inner,"SYMBOLS",   lambda:open_path(sym_dir(),create=True),"#6D8B74","#55705C").pack(side="left",padx=3)
-        Btn(inner,"FOOTPRINTS",lambda:open_path(fp_dir(),create=True), "#6D8B74","#55705C").pack(side="left",padx=3)
-        Btn(inner,"3D MODELS", lambda:open_path(m3d_dir(),create=True),"#6D8B74","#55705C").pack(side="left",padx=3)
-        Btn(inner,"LIB ROOT",  lambda:open_path(LIB_ROOT),"#6D8B74","#55705C").pack(side="left",padx=3)
-        tk.Frame(inner,bg=GRID,width=2,height=26).pack(side="left",padx=10)
-        tk.Label(inner,text="Selected row:",font=("Segoe UI",9,"bold"),bg=PANEL,fg=TXT).pack(side="left",padx=(0,6))
-        Btn(inner,"FIND FOOTPRINT",self._find_fp,COPPER,COPPER_D).pack(side="left",padx=3)
-        Btn(inner,"FIND 3D MODEL",self._find_3d,COPPER,COPPER_D).pack(side="left",padx=3)
-        Btn(inner,"OPEN SYMBOL FILE",self._find_sym,COPPER,COPPER_D).pack(side="left",padx=3)
+        # Compact toolbar: one dropdown for folders, real per-row actions
+        fb=tk.Frame(self,bg=PANEL,bd=1,relief="solid"); fb.pack(fill="x",padx=10,pady=(0,6))
+        inner=tk.Frame(fb,bg=PANEL); inner.pack(fill="x",padx=10,pady=7)
+
+        mb=tk.Menubutton(inner,text="OPEN FOLDER  \u25BE",bg="#6D8B74",fg=TXT_INV,
+                         font=("Segoe UI",9,"bold"),relief="flat",bd=0,
+                         padx=12,pady=6,cursor="hand2",activebackground="#55705C")
+        menu=tk.Menu(mb,tearoff=0,font=("Segoe UI",9),bg=CELL_BG,fg=TXT,
+                     activebackground=COPPER,activeforeground=TXT_INV)
+        menu.add_command(label="Library root",command=lambda:open_path(LIB_ROOT))
+        menu.add_separator()
+        menu.add_command(label="symbols",     command=lambda:open_path(sym_dir(),create=True))
+        menu.add_command(label="footprints",  command=lambda:open_path(fp_dir(),create=True))
+        menu.add_command(label="3d models",   command=lambda:open_path(m3d_dir(),create=True))
+        mb.config(menu=menu); mb.pack(side="left")
+
+        tk.Frame(inner,bg=GRID,width=2,height=26).pack(side="left",padx=12)
+        tk.Label(inner,text="Selected component:",font=("Segoe UI",9,"bold"),
+                 bg=PANEL,fg=TXT).pack(side="left",padx=(0,8))
+        Btn(inner,"REVEAL FILES",self._reveal_files,COPPER,COPPER_D).pack(side="left",padx=3)
+        Btn(inner,"EDIT IN KICAD",self._open_sym_file,COPPER,COPPER_D).pack(side="left",padx=3)
+        Btn(inner,"DELETE COMPONENT",self._delete_component,"#A03A2E","#7E2C22").pack(side="left",padx=3)
 
         self.lbl_paths=tk.Label(self,text="",font=("Segoe UI",8),bg=BG,fg="#6B665E",anchor="w")
         self.lbl_paths.pack(fill="x",padx=10,pady=(0,4))
@@ -935,55 +1028,362 @@ class LibTab(tk.Frame):
                 if k2 and k2 in f2: return os.path.join(directory,f)
         return None
 
-    def _find_fp(self):
+    def _reveal_files(self):
+        """Show every file linked to the selected component."""
         r=self._sel_row()
         if not r: return
-        hit=self._search_dir(fp_dir(),[r[1],r[0]],(".kicad_mod",))
-        if hit: reveal_file(hit); self.lbl_msg.config(text=f"Found: {os.path.basename(hit)}",fg=MOSS_D)
-        else:
-            open_path(fp_dir(),create=True)
-            self.lbl_msg.config(text="No matching file — opened footprint folder",fg=WARN)
+        lcsc,name,cat=r[0],r[1],(r[2] or DEF_CAT)
+        info=resolve_component(name,lcsc,cat)
 
-    def _find_3d(self):
-        r=self._sel_row()
-        if not r: return
-        hit=self._search_dir(m3d_dir(),[r[1],r[0]],(".step",".stp",".wrl"))
-        if hit: reveal_file(hit); self.lbl_msg.config(text=f"Found: {os.path.basename(hit)}",fg=MOSS_D)
-        else:
-            open_path(m3d_dir(),create=True)
-            self.lbl_msg.config(text="No matching file — opened 3D model folder",fg=WARN)
+        dlg=tk.Toplevel(self); dlg.title(f"Files — {name or lcsc}")
+        dlg.configure(bg=BG); dlg.resizable(False,False); dlg.grab_set()
+        tk.Label(dlg,text=name or lcsc,font=("Segoe UI",12,"bold"),
+                 bg=BG,fg=DARK).pack(anchor="w",padx=16,pady=(14,2))
+        tk.Label(dlg,text=f"{lcsc}    {cat}",font=("Segoe UI",9),
+                 bg=BG,fg="#5D5952").pack(anchor="w",padx=16,pady=(0,10))
 
-    def _find_sym(self):
+        rows=[
+            ("Symbol library",
+             os.path.basename(info["sym_file"]) if info["sym_file"] else None,
+             info["sym_file"], sym_dir()),
+            ("Footprint",
+             (os.path.basename(info["fp_path"]) if info["fp_path"]
+              else (info["fp_name"]+".kicad_mod  (file missing)" if info["fp_name"] else None)),
+             info["fp_path"], fp_dir()),
+            ("3D model",
+             (os.path.basename(info["model_path"]) if info["model_path"]
+              else (info["model_name"]+"  (file missing)" if info["model_name"] else None)),
+             info["model_path"], m3d_dir()),
+        ]
+        for label,shown,path,folder in rows:
+            row=tk.Frame(dlg,bg=PANEL,bd=1,relief="solid")
+            row.pack(fill="x",padx=16,pady=3)
+            tk.Label(row,text=label,font=("Segoe UI",9,"bold"),width=14,
+                     anchor="w",bg=PANEL,fg=TXT).pack(side="left",padx=8,pady=8)
+            if path:
+                tk.Label(row,text=shown,font=("Segoe UI",9),bg=PANEL,fg=MOSS_D,
+                         width=42,anchor="w").pack(side="left")
+                Btn(row,"SHOW",lambda q=path:reveal_file(q),SLATE,SLATE_D).pack(side="right",padx=8)
+            else:
+                tk.Label(row,text=shown or "not linked",font=("Segoe UI",9,"bold"),
+                         bg=PANEL,fg=WARN,width=42,anchor="w").pack(side="left")
+                Btn(row,"OPEN FOLDER",lambda f=folder:open_path(f,create=True),
+                    COPPER,COPPER_D).pack(side="right",padx=8)
+
+        if info["sym_file"] and not info["fp_name"]:
+            tk.Label(dlg,text="This symbol has no Footprint field — assign one in KiCad "
+                             "Symbol Editor so the link can be followed.",
+                     font=("Segoe UI",8),bg=BG,fg=WARN,wraplength=420,
+                     justify="left").pack(anchor="w",padx=16,pady=(8,0))
+        Btn(dlg,"CLOSE",dlg.destroy,SLATE,SLATE_D).pack(pady=14)
+
+    def _open_sym_file(self):
         r=self._sel_row()
         if not r: return
         sf=sym_path(r[2] or DEF_CAT)
-        if os.path.exists(sf): reveal_file(sf); self.lbl_msg.config(text=f"Opened {os.path.basename(sf)}",fg=MOSS_D)
+        if os.path.exists(sf):
+            open_path(sf)
+            self.lbl_msg.config(text=f"Opened {os.path.basename(sf)}",fg=MOSS_D)
         else:
             open_path(sym_dir(),create=True)
-            self.lbl_msg.config(text=f"{os.path.basename(sf)} not found — opened symbols folder",fg=WARN)
+            self.lbl_msg.config(text=f"{os.path.basename(sf)} not found",fg=WARN)
+
+    def _delete_component(self):
+        """Remove the symbol from its .kicad_sym, delete its files, drop the row."""
+        idx=self.grid_w.selected_index()
+        r=self._sel_row()
+        if r is None or idx is None: return
+        lcsc,name,cat=r[0],r[1],(r[2] or DEF_CAT)
+        info=resolve_component(name,lcsc,cat)
+
+        detail=[]
+        if info["sym_file"]: detail.append(f"Symbol: {info['sym_name']}  in  {os.path.basename(info['sym_file'])}")
+        if info["fp_path"]:  detail.append(f"Footprint: {os.path.basename(info['fp_path'])}")
+        if info["model_path"]: detail.append(f"3D model: {os.path.basename(info['model_path'])}")
+        if not detail: detail.append("No files found — only the row will be removed.")
+
+        if not messagebox.askyesno("Delete component",
+            f"Permanently delete '{name or lcsc}'?\n\n"+"\n".join(detail)+
+            "\n\nThis cannot be undone."):
+            return
+
+        removed=[]
+        if info["sym_file"] and info["sym_name"]:
+            try:
+                c=open(info["sym_file"],encoding="utf-8").read()
+                st=c.find(f'(symbol "{info["sym_name"]}"')
+                if st!=-1:
+                    d,e=0,-1
+                    for i in range(st,len(c)):
+                        if c[i]=="(": d+=1
+                        elif c[i]==")":
+                            d-=1
+                            if d==0: e=i+1; break
+                    if e!=-1:
+                        open(info["sym_file"],"w",encoding="utf-8").write(c[:st]+c[e:])
+                        removed.append("symbol")
+            except Exception as ex:
+                self.lbl_msg.config(text=f"Symbol removal failed: {ex}",fg=ERR)
+
+        if messagebox.askyesno("Shared files",
+            "Also delete the footprint and 3D model files?\n\n"
+            "Choose No if other components may use the same package."):
+            for pth,tag in ((info["fp_path"],"footprint"),(info["model_path"],"3d model")):
+                if pth and os.path.exists(pth):
+                    try: os.remove(pth); removed.append(tag)
+                    except Exception: pass
+
+        self.grid_w.delete_selected(); self._save()
+        self.lbl_msg.config(text=f"Deleted {name or lcsc}  ({', '.join(removed) or 'row only'})",
+                            fg=MOSS_D)
 
     def _rescan(self):
-        """Re-check symbol / footprint / 3D existence for every row."""
-        if not os.path.exists(sym_dir()):
-            self.lbl_msg.config(text="symbols/ folder not found",fg=ERR); return
-        all_syms=set()
-        for fn in os.listdir(sym_dir()):
-            if fn.startswith(f"{LIB_PFX}-") and fn.endswith(".kicad_sym"):
-                for b in extract_blocks(os.path.join(sym_dir(),fn)):
-                    all_syms.add(b["name"].lower())
-                    if b["lcsc"]: all_syms.add(b["lcsc"].lower())
-        fps=[f.lower() for f in os.listdir(fp_dir())] if os.path.exists(fp_dir()) else []
-        m3s=[f.lower() for f in os.listdir(m3d_dir())] if os.path.exists(m3d_dir()) else []
-        upd=0
+        """Re-check symbol, footprint and 3D presence for every row via real links."""
+        if not os.path.isdir(sym_dir()):
+            self.lbl_msg.config(text="symbols folder not found",fg=ERR); return
+        n_s=n_f=n_m=0
         for row in self.grid_w._rows:
-            lcsc=row["vars"][0].get().strip().lower()
-            name=row["vars"][1].get().strip().lower()
-            key=name.replace(" ","").replace("-","").replace("_","")
-            row["vars"][4].set("v" if (lcsc in all_syms or name in all_syms) else "x")
-            row["vars"][5].set("v" if any(key and key in f.replace("-","").replace("_","") for f in fps) else "x")
-            row["vars"][6].set("v" if any(key and key in f.replace("-","").replace("_","") for f in m3s) else "x")
-            upd+=1
-        self.lbl_msg.config(text=f"Rescanned {upd} rows — click Save to persist",fg=MOSS_D)
+            lcsc=row["vars"][0].get().strip()
+            name=row["vars"][1].get().strip()
+            cat =row["vars"][2].get().strip() or DEF_CAT
+            info=resolve_component(name,lcsc,cat)
+            row["vars"][4].set("v" if info["sym_file"] else "x")
+            row["vars"][5].set("v" if info["fp_path"] else "x")
+            row["vars"][6].set("v" if info["model_path"] else "x")
+            n_s+=1 if info["sym_file"] else 0
+            n_f+=1 if info["fp_path"] else 0
+            n_m+=1 if info["model_path"] else 0
+        self.lbl_msg.config(
+            text=f"Rescanned — symbols {n_s}, footprints {n_f}, 3D {n_m}. Click Save to keep.",
+            fg=MOSS_D)
+        self._status(f"Rescan: {n_s} symbols, {n_f} footprints, {n_m} models")
+
+
+# ==============================================================================
+# TOOLS TAB — library maintenance
+# ==============================================================================
+def scan_library():
+    """Collect every symbol, footprint and 3D file plus any problems found."""
+    rep={"symbols":{}, "footprints":[], "models":[], "issues":[],
+         "dupes":[], "by_cat":{}}
+    if os.path.isdir(sym_dir()):
+        for fn in sorted(os.listdir(sym_dir())):
+            if not (fn.startswith(f"{LIB_PFX}-") and fn.endswith(".kicad_sym")): continue
+            cat=fn[len(LIB_PFX)+1:-len(".kicad_sym")]
+            blocks=extract_blocks(os.path.join(sym_dir(),fn))
+            rep["by_cat"][cat]=len(blocks)
+            for b in blocks:
+                nm=b["name"]
+                if nm in rep["symbols"]:
+                    rep["dupes"].append(f"{nm}  (in {rep['symbols'][nm]['cat']} and {cat})")
+                fpm=re.search(r'\(property\s+"Footprint"\s+"([^"]*)"',b["content"])
+                rep["symbols"][nm]={"cat":cat,"lcsc":b["lcsc"],
+                                    "fp":fpm.group(1) if fpm else ""}
+    if os.path.isdir(fp_dir()):
+        rep["footprints"]=[f for f in sorted(os.listdir(fp_dir()))
+                           if f.endswith(".kicad_mod")]
+    if os.path.isdir(m3d_dir()):
+        rep["models"]=[f for f in sorted(os.listdir(m3d_dir()))
+                       if f.lower().endswith((".step",".stp",".wrl"))]
+
+    fp_names={os.path.splitext(f)[0].lower() for f in rep["footprints"]}
+    # symbols with no footprint assigned, or pointing at a file that is not there
+    for nm,info in rep["symbols"].items():
+        fp=info["fp"]
+        if not fp:
+            rep["issues"].append(("symbol has no Footprint field",nm))
+        else:
+            base=fp.split(":")[-1].lower()
+            if base and base not in fp_names:
+                rep["issues"].append(("footprint file missing",f"{nm}  ->  {fp}"))
+    # footprints whose 3D model path points nowhere
+    model_names={f.lower() for f in rep["models"]}
+    for f in rep["footprints"]:
+        try: c=open(os.path.join(fp_dir(),f),encoding="utf-8").read()
+        except Exception: continue
+        for m in re.finditer(r'\(model\s+"([^"]+)"',c):
+            path=m.group(1)
+            base=os.path.basename(path).lower()
+            if base not in model_names:
+                rep["issues"].append(("3D model missing",f"{f}  ->  {base}"))
+            if "${" not in path:
+                rep["issues"].append(("3D path not using a variable",f))
+    return rep
+
+
+class ToolsTab(tk.Frame):
+    def __init__(self,parent,status):
+        super().__init__(parent,bg=BG); self._status=status; self._build()
+
+    def _build(self):
+        top=tk.Frame(self,bg=BG); top.pack(fill="x",padx=10,pady=(10,6))
+        tk.Label(top,text="TOOLS",font=("Segoe UI",13,"bold"),bg=BG,fg=DARK).pack(side="left")
+        tk.Label(top,text="Check and repair the library, then export what you need",
+                 font=("Segoe UI",9),bg=BG,fg="#5D5952").pack(side="left",padx=14)
+
+        cards=tk.Frame(self,bg=BG); cards.pack(fill="x",padx=10)
+        specs=[
+            ("HEALTH CHECK","Find symbols with no footprint, missing files and broken 3D paths",
+             self._health,COPPER,COPPER_D),
+            ("FIX 3D PATHS","Rewrite every model path to ${KICAD_USER_LIB} so both machines resolve it",
+             self._fix3d,"#6D8B74","#55705C"),
+            ("FIND DUPLICATES","List symbols or LCSC codes that appear in more than one file",
+             self._dupes,"#7C6A9C","#61527C"),
+            ("STATISTICS","Count symbols per category, footprints and 3D models",
+             self._stats,SLATE,SLATE_D),
+            ("EXPORT CSV","Write the whole library to a CSV file for BOM or procurement",
+             self._csv,"#5D7C8A","#455A64"),
+            ("KICAD LIB TABLE","Generate sym-lib-table and fp-lib-table entries to paste into KiCad",
+             self._libtable,"#8D6E63","#6D4C41"),
+        ]
+        for i,(title,desc,cmd,c1,c2) in enumerate(specs):
+            row,col=divmod(i,3)
+            card=tk.Frame(cards,bg=PANEL,bd=1,relief="solid")
+            card.grid(row=row,column=col,sticky="nsew",padx=4,pady=4)
+            cards.grid_columnconfigure(col,weight=1)
+            Btn(card,title,cmd,c1,c2).pack(fill="x",padx=10,pady=(10,6))
+            tk.Label(card,text=desc,font=("Segoe UI",8),bg=PANEL,fg="#5D5952",
+                     wraplength=290,justify="left").pack(anchor="w",padx=10,pady=(0,10))
+
+        tk.Label(self,text="Output",font=("Segoe UI",9,"bold"),
+                 bg=BG,fg=DARK).pack(anchor="w",padx=10,pady=(10,2))
+        self.log=LogBox(self,height=16); self.log.pack(fill="both",expand=True,padx=10,pady=(0,10))
+
+    # ── Actions ───────────────────────────────────────────────────────────────
+    def _health(self):
+        self.log.clear(); self.log.log("HEALTH CHECK","info")
+        self.log.log("-"*60,"dim")
+        r=scan_library()
+        self.log.log(f"Symbols    {len(r['symbols'])}","ok")
+        self.log.log(f"Footprints {len(r['footprints'])}","ok")
+        self.log.log(f"3D models  {len(r['models'])}","ok")
+        self.log.log("","dim")
+        if not r["issues"]:
+            self.log.log("No problems found.","ok"); return
+        groups={}
+        for kind,detail in r["issues"]: groups.setdefault(kind,[]).append(detail)
+        for kind,items in groups.items():
+            self.log.log(f"{kind}  ({len(items)})","warn")
+            for it in items[:40]: self.log.log(f"    {it}","dim")
+            if len(items)>40: self.log.log(f"    ... and {len(items)-40} more","dim")
+            self.log.log("","dim")
+        self._status(f"Health check: {len(r['issues'])} issues")
+
+    def _fix3d(self):
+        if not os.path.isdir(fp_dir()):
+            self.log.log("footprints folder not found","err"); return
+        if not messagebox.askyesno("Fix 3D paths",
+            "Rewrite the 3D model path inside every .kicad_mod so it uses "
+            "${KICAD_USER_LIB}?\n\nThe file name is kept, only the folder part changes."):
+            return
+        self.log.clear(); self.log.log("FIX 3D PATHS","info"); self.log.log("-"*60,"dim")
+        pat=re.compile(r'\(model\s+"[^"]*?([^"/\\]+\.(?:step|stp|wrl))"',re.I)
+        target=r'(model "${KICAD_USER_LIB}/3dmodels/'+LIB_PFX+r'.3dshapes/\1"'
+        n=0
+        for f in sorted(os.listdir(fp_dir())):
+            if not f.endswith(".kicad_mod"): continue
+            fp=os.path.join(fp_dir(),f)
+            try:
+                c=open(fp,encoding="utf-8").read()
+                new=pat.sub(target,c)
+                if new!=c:
+                    open(fp,"w",encoding="utf-8").write(new)
+                    self.log.log(f"  fixed  {f}","ok"); n+=1
+            except Exception as ex:
+                self.log.log(f"  error  {f}: {ex}","err")
+        self.log.log("","dim")
+        self.log.log(f"Updated {n} footprint files.","ok" if n else "dim")
+        self._status(f"Fixed 3D paths in {n} files")
+
+    def _dupes(self):
+        self.log.clear(); self.log.log("DUPLICATES","info"); self.log.log("-"*60,"dim")
+        r=scan_library()
+        lcsc_map={}
+        for nm,info in r["symbols"].items():
+            if info["lcsc"]: lcsc_map.setdefault(info["lcsc"],[]).append(nm)
+        dl=[(k,v) for k,v in lcsc_map.items() if len(v)>1]
+        if not r["dupes"] and not dl:
+            self.log.log("No duplicates found.","ok"); return
+        if r["dupes"]:
+            self.log.log(f"Duplicate symbol names  ({len(r['dupes'])})","warn")
+            for d in r["dupes"]: self.log.log(f"    {d}","dim")
+        if dl:
+            self.log.log("","dim")
+            self.log.log(f"Same LCSC used by several symbols  ({len(dl)})","warn")
+            for k,v in dl: self.log.log(f"    {k}  ->  {', '.join(v)}","dim")
+        self._status(f"{len(r['dupes'])+len(dl)} duplicates")
+
+    def _stats(self):
+        self.log.clear(); self.log.log("STATISTICS","info"); self.log.log("-"*60,"dim")
+        r=scan_library()
+        if not r["by_cat"]:
+            self.log.log("No symbol files found under symbols/","warn"); return
+        total=0
+        for cat,n in sorted(r["by_cat"].items(),key=lambda x:-x[1]):
+            bar="#"*min(n,40)
+            self.log.log(f"  {cat:<16}{n:>4}  {bar}","ok" if n else "dim"); total+=n
+        self.log.log("","dim")
+        self.log.log(f"  {'TOTAL':<16}{total:>4}","info")
+        self.log.log(f"  {'footprints':<16}{len(r['footprints']):>4}","info")
+        self.log.log(f"  {'3d models':<16}{len(r['models']):>4}","info")
+        cov=(len(r['footprints'])/total*100) if total else 0
+        self.log.log("","dim")
+        self.log.log(f"  Footprint coverage  {cov:.0f}%","ok" if cov>80 else "warn")
+
+    def _csv(self):
+        rows=excel_read_sheet(SHEET_LIB,8)
+        if not rows:
+            self.log.log("Library sheet is empty","warn"); return
+        path=filedialog.asksaveasfilename(defaultextension=".csv",
+                initialfile="library_export.csv",
+                filetypes=[("CSV file","*.csv")], initialdir=LIB_ROOT)
+        if not path: return
+        try:
+            import csv as _csv
+            with open(path,"w",newline="",encoding="utf-8-sig") as f:
+                w=_csv.writer(f)
+                w.writerow(["LCSC","Name","Category","Description",
+                            "Symbol","Footprint","3D","Updated"])
+                w.writerows(rows)
+            self.log.clear()
+            self.log.log(f"Exported {len(rows)} components","ok")
+            self.log.log(path,"dim")
+            self._status(f"Exported {len(rows)} rows to CSV")
+            if messagebox.askyesno("Export complete","Open the file now?"): open_path(path)
+        except Exception as ex:
+            self.log.log(f"Export failed: {ex}","err")
+
+    def _libtable(self):
+        self.log.clear(); self.log.log("KICAD LIBRARY TABLE","info"); self.log.log("-"*60,"dim")
+        syms=[f for f in sorted(os.listdir(sym_dir()))
+              if f.endswith(".kicad_sym")] if os.path.isdir(sym_dir()) else []
+        if not syms:
+            self.log.log("No .kicad_sym files found under symbols/","warn"); return
+        lines=["(sym_lib_table","  (version 7)"]
+        for f in syms:
+            nick=f[:-len(".kicad_sym")]
+            lines.append(f'  (lib (name "{nick}")(type "KiCad")'
+                         f'(uri "${{KICAD_USER_LIB}}/symbols/{f}")(options "")(descr ""))')
+        lines.append(")")
+        lines.append("")
+        lines.append("(fp_lib_table")
+        lines.append("  (version 7)")
+        pretty=os.path.basename(fp_dir())
+        rel="footprints/"+pretty if pretty.endswith(".pretty") else "footprints"
+        lines.append(f'  (lib (name "{LIB_PFX}")(type "KiCad")'
+                     f'(uri "${{KICAD_USER_LIB}}/{rel}")(options "")(descr ""))')
+        lines.append(")")
+        text="\n".join(lines)
+        for l in lines: self.log.log(l,"dim")
+        self.log.log("","dim")
+        self.log.log("Set KICAD_USER_LIB in KiCad: Preferences > Configure Paths","info")
+        self.log.log(f"    KICAD_USER_LIB  =  {LIB_ROOT}","ok")
+        try:
+            self.clipboard_clear(); self.clipboard_append(text)
+            self.log.log("","dim"); self.log.log("Copied to clipboard.","ok")
+        except Exception: pass
+        self._status("Library table generated")
+
 
 # ==============================================================================
 # APP
@@ -1030,9 +1430,11 @@ class App:
         self.t_q=QueueTab(self.nb,self._status)
         self.t_c=CustomTab(self.nb,self._status)
         self.t_l=LibTab(self.nb,self._status)
+        self.t_t=ToolsTab(self.nb,self._status)
         self.nb.add(self.t_q,text="QUEUE IMPORT")
         self.nb.add(self.t_c,text="CUSTOM SYMBOL")
         self.nb.add(self.t_l,text="LIBRARY")
+        self.nb.add(self.t_t,text="TOOLS")
 
         if not looks_like_root(LIB_ROOT):
             warn=tk.Frame(self.root,bg="#8D3B1E",height=30); warn.pack(fill="x")
