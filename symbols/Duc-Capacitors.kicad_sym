@@ -47,7 +47,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" "CP 330uF ±20% 25V SMD"
+		(property "Description" "CAP ALUM POLY 330uF ±20% 25V SMD"
 			(at 1.524 -4.318 0)
 			(effects
 				(font
@@ -1078,7 +1078,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" "100uF (107) ±20% 25V"
+		(property "Description" "CAP TANT 100uF ±20% 25V CASE-E-7343-43(mm)"
 			(at 0 0 0)
 			(effects
 				(font

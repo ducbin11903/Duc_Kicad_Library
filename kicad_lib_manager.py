@@ -10,7 +10,10 @@ from datetime import datetime
 from openpyxl import load_workbook
 from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
 
-APP_TITLE="KiCad Library Manager"; APP_VER="3.0"
+APP_TITLE  = "KiCad Library Manager"
+APP_VER    = "3.0"
+APP_AUTHOR = "Duc"
+APP_YEAR   = "2026"
 SHEET_LIB="Library"; SHEET_Q="Queue"
 LIB_PFX="Duc"; DEF_CAT="Misc"
 CONFIG_FILE="kicad_lib_manager.cfg"
@@ -131,6 +134,32 @@ CELL_SEL  = "#FFD54F"   # selected row highlight
 ERR       = "#B71C1C"
 WARN      = "#E65100"
 
+def resource(name):
+    """Locate a bundled resource, both when run as a script and from the exe."""
+    base=getattr(sys,"_MEIPASS",None) or os.path.dirname(os.path.abspath(__file__))
+    p=os.path.join(base,name)
+    if os.path.exists(p): return p
+    p2=os.path.join(os.getcwd(),name)
+    return p2 if os.path.exists(p2) else None
+
+
+def apply_icon(win):
+    """Set the window icon from app.ico, falling back to app_logo.png."""
+    ico=resource("app.ico")
+    if ico:
+        try: win.iconbitmap(ico); return True
+        except Exception: pass
+    png=resource("app_logo.png")
+    if png:
+        try:
+            img=tk.PhotoImage(file=png)
+            win.iconphoto(True,img)
+            win._icon_ref=img          # keep a reference alive
+            return True
+        except Exception: pass
+    return False
+
+
 def norm_cat(r): return CATMAP.get(r.strip().lower(), r.strip().title() if r.strip() else DEF_CAT)
 def sym_path(c): return os.path.join(sym_dir(),f"{LIB_PFX}-{c}.kicad_sym")
 def find_easyeda():
@@ -238,8 +267,10 @@ def ensure_sym(p):
         with open(p,"w",encoding="utf-8") as f:
             f.write("(kicad_symbol_lib (version 20231120) (generator duc_lib)\n)\n")
 def clear_temp():
-    if os.path.exists(temp_dir()): shutil.rmtree(temp_dir(),ignore_errors=True)
-    os.makedirs(temp_dir(),exist_ok=True)
+    t=temp_dir()
+    if os.path.exists(t): shutil.rmtree(t,ignore_errors=True)
+    os.makedirs(t,exist_ok=True)
+    return t
 
 def extract_blocks(fp):
     if not os.path.exists(fp): return []
@@ -261,6 +292,44 @@ def extract_blocks(fp):
             out.append({"name":m.group(1),"lcsc":lm.group(1) if lm else None,"content":b})
         pos=e
     return out
+
+MODEL_PAT=re.compile(r'\(model\s+"[^"]*?([^"/\\\\]+\.(?:step|stp|wrl))"',re.I)
+
+def fix_model_paths(text):
+    """Point every 3D model reference at ${KICAD_USER_LIB}, keeping the file name."""
+    shapes=os.path.basename(m3d_dir())
+    if not shapes.endswith(".3dshapes"): shapes=f"{LIB_PFX}.3dshapes"
+    target=r'(model "${KICAD_USER_LIB}/3dmodels/'+shapes+r'/\1"'
+    return MODEL_PAT.sub(target,text)
+
+
+def clean_text(text):
+    """Make a string safe to drop into an S-expression."""
+    if not text: return ""
+    t=str(text).replace("\\","/").replace('"',"'")
+    t=t.replace("\n"," ").replace("\r"," ").replace("\t"," ")
+    return " ".join(t.split()).strip()
+
+
+def set_description(block, text):
+    """Write text into the symbol's Description property (parent symbol only)."""
+    safe=clean_text(text)
+    if not safe: return block
+    if '(property "Description"' in block:
+        return re.sub(r'\(property\s+"Description"\s+"[^"]*"',
+                      f'(property "Description" "{safe}"', block, count=1)
+    m=re.search(r'(\(property\s+"Value".*?\n\s*\)\n)', block, re.S)
+    prop=(f'  (property "Description" "{safe}" (at 0 0 0)\n'
+          f'    (effects (font (size 1.27 1.27)) (hide yes))\n  )\n')
+    if m:
+        return block[:m.end(1)]+prop+block[m.end(1):]
+    return re.sub(r'(\(symbol\s+"[^"]+"\n)', r'\1'+prop, block, count=1)
+
+
+def description_of(block):
+    m=re.search(r'\(property\s+"Description"\s+"([^"]*)"',block)
+    return m.group(1) if m else ""
+
 
 def merge_block(block,sf):
     with open(sf,"r",encoding="utf-8") as f: c=f.read()
@@ -774,6 +843,17 @@ class QueueTab(tk.Frame):
         if not ez:
             messagebox.showerror("Not found","easyeda2kicad not found.\nRun: pip install easyeda2kicad")
             return
+        # easyeda2kicad is unreliable with non-ASCII characters in the path
+        try: LIB_ROOT.encode("ascii")
+        except UnicodeEncodeError:
+            if not messagebox.askyesno("Path warning",
+                "The library folder contains non-English characters:\n\n"
+                +LIB_ROOT+
+                "\n\neasyeda2kicad often fails on paths like this. Moving the "
+                "library to a plain path such as D:\\KiCadLibs\\Duc_Kicad_Library "
+                "is strongly recommended.\n\nTry the import anyway?"):
+                return
+
         self._running=True
         self.btn_imp.config(state="disabled",text="IMPORTING...")
         self.log.clear(); self.pbar["value"]=0; self.pbar["maximum"]=len(rows)
@@ -783,22 +863,40 @@ class QueueTab(tk.Frame):
             for i,(lcsc,name,cat,note) in enumerate(rows,1):
                 mq.put(("log",f"[{i}/{len(rows)}] {lcsc}  {name}","info"))
                 sf=sym_path(cat or DEF_CAT); ensure_sym(sf); clear_temp()
+                out_base=os.path.join(temp_dir(),"temp")
                 res=subprocess.run([ez,"--full",f"--lcsc_id={lcsc}",
-                                    "--output",os.path.join("temp","temp")],
-                                   capture_output=True,text=True)
+                                    "--output",out_base],
+                                   capture_output=True,text=True,
+                                   cwd=LIB_ROOT)
                 if res.returncode!=0:
-                    mq.put(("log",f"    FAILED: {res.stderr.strip()[:110]}","err"))
+                    err=(res.stderr.strip() or res.stdout.strip())[:200]
+                    mq.put(("log",f"    FAILED: {err}","err"))
+                    mq.put(("log",f"    output base was: {out_base}","dim"))
                     fail.append([lcsc,name,cat,note]); mq.put(("prog",i,None)); continue
                 blocks=extract_blocks(os.path.join(temp_dir(),"temp.kicad_sym"))
                 exist={b["name"] for b in extract_blocks(sf)}
                 s_ok=False
                 for b in blocks:
-                    if b["name"] not in exist: merge_block(b["content"],sf); s_ok=True
+                    if b["name"] in exist: continue
+                    content=b["content"]
+                    if note:                       # Note column -> KiCad Description
+                        content=set_description(content,note)
+                    merge_block(content,sf); s_ok=True
                 fpd=os.path.join(temp_dir(),"temp.pretty"); f_ok=os.path.exists(fpd)
                 if f_ok:
+                    os.makedirs(fp_dir(),exist_ok=True)
                     for fn in os.listdir(fpd):
                         d=os.path.join(fp_dir(),fn)
-                        if not os.path.exists(d): shutil.copy2(os.path.join(fpd,fn),d)
+                        if os.path.exists(d): continue
+                        src=os.path.join(fpd,fn)
+                        if fn.endswith(".kicad_mod"):
+                            try:                      # rewrite the 3D path on the way in
+                                c=open(src,encoding="utf-8").read()
+                                open(d,"w",encoding="utf-8").write(fix_model_paths(c))
+                            except Exception:
+                                shutil.copy2(src,d)
+                        else:
+                            shutil.copy2(src,d)
                 m3d=os.path.join(temp_dir(),"temp.3dshapes"); m_ok=os.path.exists(m3d)
                 if m_ok:
                     for fn in os.listdir(m3d):
@@ -1231,6 +1329,9 @@ class ToolsTab(tk.Frame):
              self._dupes,"#7C6A9C","#61527C"),
             ("STATISTICS","Count symbols per category, footprints and 3D models",
              self._stats,SLATE,SLATE_D),
+            ("SYNC DESCRIPTIONS","Copy the Note column from the Library sheet into "
+             "each symbol's Description field in KiCad",
+             self._sync_desc,"#B07B2E","#8A5F22"),
             ("EXPORT CSV","Write the whole library to a CSV file for BOM or procurement",
              self._csv,"#5D7C8A","#455A64"),
             ("KICAD LIB TABLE","Generate sym-lib-table and fp-lib-table entries to paste into KiCad",
@@ -1277,22 +1378,25 @@ class ToolsTab(tk.Frame):
             "${KICAD_USER_LIB}?\n\nThe file name is kept, only the folder part changes."):
             return
         self.log.clear(); self.log.log("FIX 3D PATHS","info"); self.log.log("-"*60,"dim")
-        pat=re.compile(r'\(model\s+"[^"]*?([^"/\\]+\.(?:step|stp|wrl))"',re.I)
-        target=r'(model "${KICAD_USER_LIB}/3dmodels/'+LIB_PFX+r'.3dshapes/\1"'
         n=0
         for f in sorted(os.listdir(fp_dir())):
             if not f.endswith(".kicad_mod"): continue
             fp=os.path.join(fp_dir(),f)
             try:
                 c=open(fp,encoding="utf-8").read()
-                new=pat.sub(target,c)
-                if new!=c:
-                    open(fp,"w",encoding="utf-8").write(new)
+                new_c=fix_model_paths(c)
+                if new_c!=c:
+                    open(fp,"w",encoding="utf-8").write(new_c)
                     self.log.log(f"  fixed  {f}","ok"); n+=1
             except Exception as ex:
                 self.log.log(f"  error  {f}: {ex}","err")
         self.log.log("","dim")
         self.log.log(f"Updated {n} footprint files.","ok" if n else "dim")
+        if n:
+            self.log.log("","dim")
+            self.log.log("Reminder: KICAD_USER_LIB must be set in KiCad "
+                         "(Preferences > Configure Paths) to:","info")
+            self.log.log(f"    {LIB_ROOT}","ok")
         self._status(f"Fixed 3D paths in {n} files")
 
     def _dupes(self):
@@ -1329,6 +1433,70 @@ class ToolsTab(tk.Frame):
         cov=(len(r['footprints'])/total*100) if total else 0
         self.log.log("","dim")
         self.log.log(f"  Footprint coverage  {cov:.0f}%","ok" if cov>80 else "warn")
+
+    def _sync_desc(self):
+        """Push the Note column from the Library sheet into every symbol."""
+        rows=excel_read_sheet(SHEET_LIB,8)
+        if not rows:
+            self.log.clear(); self.log.log("Library sheet is empty","warn"); return
+        notes={}
+        for r in rows:
+            lcsc,name,cat,note=r[0],r[1],r[2],r[3]
+            if note: notes[(name.strip().lower(),lcsc.strip().lower())]=(note,cat)
+        if not notes:
+            self.log.clear(); self.log.log("No notes found in the Library sheet","warn"); return
+
+        if not messagebox.askyesno("Sync descriptions",
+            f"Write the Note text of {len(notes)} components into their "
+            "Description field inside the .kicad_sym files?\n\n"
+            "Existing descriptions will be replaced."):
+            return
+
+        self.log.clear(); self.log.log("SYNC DESCRIPTIONS","info"); self.log.log("-"*60,"dim")
+        changed=skipped=missing=0
+
+        for fn in sorted(os.listdir(sym_dir()) if os.path.isdir(sym_dir()) else []):
+            if not (fn.startswith(f"{LIB_PFX}-") and fn.endswith(".kicad_sym")): continue
+            path=os.path.join(sym_dir(),fn)
+            try: content=open(path,encoding="utf-8").read()
+            except Exception as ex:
+                self.log.log(f"  cannot read {fn}: {ex}","err"); continue
+
+            file_changed=False
+            for b in extract_blocks(path):
+                key=None
+                nl=b["name"].strip().lower()
+                ll=(b["lcsc"] or "").strip().lower()
+                for (n,l),(note,cat) in notes.items():
+                    if (n and n==nl) or (l and l==ll): key=(note,cat); break
+                if not key: continue
+                note=key[0]
+                if description_of(b["content"])==note:
+                    skipped+=1; continue
+                new_block=set_description(b["content"],note)
+                if new_block!=b["content"]:
+                    content=content.replace(b["content"],new_block,1)
+                    file_changed=True; changed+=1
+                    self.log.log(f"  {b['name']:<28} <- {note[:48]}","ok")
+            if file_changed:
+                try: open(path,"w",encoding="utf-8").write(content)
+                except Exception as ex: self.log.log(f"  cannot write {fn}: {ex}","err")
+
+        # components in the sheet with no matching symbol
+        all_syms=set()
+        for fn in (os.listdir(sym_dir()) if os.path.isdir(sym_dir()) else []):
+            if fn.startswith(f"{LIB_PFX}-") and fn.endswith(".kicad_sym"):
+                for b in extract_blocks(os.path.join(sym_dir(),fn)):
+                    all_syms.add(b["name"].strip().lower())
+                    if b["lcsc"]: all_syms.add(b["lcsc"].strip().lower())
+        for (n,l) in notes:
+            if n not in all_syms and l not in all_syms: missing+=1
+
+        self.log.log("","dim")
+        self.log.log(f"Updated      {changed}","ok" if changed else "dim")
+        self.log.log(f"Already set  {skipped}","dim")
+        if missing: self.log.log(f"No symbol found for {missing} rows","warn")
+        self._status(f"Descriptions synced: {changed} updated")
 
     def _csv(self):
         rows=excel_read_sheet(SHEET_LIB,8)
@@ -1394,6 +1562,7 @@ class App:
         self.root.title(f"{APP_TITLE}  {APP_VER}")
         self.root.geometry("1080x760"); self.root.minsize(900,640)
         self.root.configure(bg=BG)
+        apply_icon(self.root)
         self._style(); self._build()
 
     def _style(self):
@@ -1411,10 +1580,26 @@ class App:
 
     def _build(self):
         hb=tk.Frame(self.root,bg=DARK,height=56); hb.pack(fill="x"); hb.pack_propagate(False)
+
+        # Logo, if app_logo.png sits next to the program
+        logo=resource("app_logo.png")
+        if logo:
+            try:
+                img=tk.PhotoImage(file=logo)
+                f=max(1,img.width()//40)
+                img=img.subsample(f,f)
+                lbl=tk.Label(hb,image=img,bg=DARK); lbl.image=img
+                lbl.pack(side="left",padx=(14,8))
+            except Exception: pass
+
         tk.Label(hb,text=APP_TITLE,font=("Segoe UI",15,"bold"),
-                 bg=DARK,fg=TXT_INV).pack(side="left",padx=16)
+                 bg=DARK,fg=TXT_INV).pack(side="left",padx=(2,0))
         tk.Label(hb,text=APP_VER,font=("Segoe UI",9,"bold"),
-                 bg=DARK,fg=COPPER).pack(side="left")
+                 bg=DARK,fg=COPPER).pack(side="left",padx=(6,0))
+        tk.Button(hb,text="?",command=self._about,font=("Segoe UI",9,"bold"),
+                  bg=DARK,fg="#78909C",relief="flat",bd=0,cursor="hand2",
+                  activebackground=DARK,activeforeground=COPPER,
+                  padx=8).pack(side="left",padx=(10,0))
         ff=tk.Frame(hb,bg=DARK); ff.pack(side="right",padx=16)
         tk.Label(ff,text="Library folder:",font=("Segoe UI",9,"bold"),
                  bg=DARK,fg="#B0BEC5").pack(side="left")
@@ -1447,6 +1632,8 @@ class App:
         sb.pack_propagate(False)
         self.lbl_s=tk.Label(sb,text="Ready",font=("Segoe UI",9),bg=DARK2,fg="#B0BEC5")
         self.lbl_s.pack(side="left",padx=12)
+        tk.Label(sb,text=f"by {APP_AUTHOR}",font=("Segoe UI",9,"bold"),
+                 bg=DARK2,fg=COPPER).pack(side="left",padx=(0,12))
         tk.Label(sb,text="Click row number to select    Ctrl+click add    Shift+click range    "
                          "Ctrl+V paste    Tab / Enter move",
                  font=("Segoe UI",9),bg=DARK2,fg="#78909C").pack(side="right",padx=12)
@@ -1482,6 +1669,40 @@ class App:
                 "\n\nCreate the missing folders now?"):
                 ensure_dirs()
                 self._status("Created missing folders")
+
+    def _about(self):
+        dlg=tk.Toplevel(self.root); dlg.title("About")
+        dlg.configure(bg=BG); dlg.resizable(False,False); dlg.grab_set()
+        apply_icon(dlg)
+
+        logo=resource("app_logo.png")
+        if logo:
+            try:
+                img=tk.PhotoImage(file=logo)
+                f=max(1,img.width()//96)
+                img=img.subsample(f,f)
+                l=tk.Label(dlg,image=img,bg=BG); l.image=img; l.pack(pady=(20,10))
+            except Exception: pass
+
+        tk.Label(dlg,text=APP_TITLE,font=("Segoe UI",15,"bold"),
+                 bg=BG,fg=DARK).pack()
+        tk.Label(dlg,text=f"Version {APP_VER}",font=("Segoe UI",10),
+                 bg=BG,fg=COPPER).pack(pady=(2,14))
+
+        info=tk.Frame(dlg,bg=PANEL,bd=1,relief="solid"); info.pack(fill="x",padx=24)
+        for k,v in [("Author",APP_AUTHOR),
+                    ("Year",APP_YEAR),
+                    ("Library root",LIB_ROOT)]:
+            r=tk.Frame(info,bg=PANEL); r.pack(fill="x",padx=12,pady=5)
+            tk.Label(r,text=k,font=("Segoe UI",9,"bold"),width=12,anchor="w",
+                     bg=PANEL,fg=TXT).pack(side="left")
+            tk.Label(r,text=v,font=("Segoe UI",9),bg=PANEL,fg="#5D5952",
+                     anchor="w",wraplength=300,justify="left").pack(side="left")
+
+        tk.Label(dlg,text="Manages KiCad symbol, footprint and 3D model libraries.\n"
+                          "Imports parts from LCSC and keeps everything in one place.",
+                 font=("Segoe UI",9),bg=BG,fg="#5D5952",justify="center").pack(pady=14)
+        Btn(dlg,"CLOSE",dlg.destroy,SLATE,SLATE_D).pack(pady=(0,20))
 
     def _status(self,m): self.lbl_s.config(text=m)
     def run(self): self.root.mainloop()

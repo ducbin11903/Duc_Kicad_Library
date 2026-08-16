@@ -47,7 +47,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" "2.2uH 2A"
+		(property "Description" "FIXED IND 2.2uH 2A SMD,3x3mm"
 			(at 0 -1.778 0)
 			(effects
 				(font
