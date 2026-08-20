@@ -176,7 +176,7 @@
 					(type none)
 				)
 			)
-			(pin passive line
+			(pin unspecified line
 				(at -5.08 -1.27 0)
 				(length 2.54)
 				(name "1"
@@ -194,7 +194,7 @@
 					)
 				)
 			)
-			(pin passive line
+			(pin unspecified line
 				(at 5.08 -1.27 180)
 				(length 2.54)
 				(name "2"
@@ -354,7 +354,7 @@
 					(type none)
 				)
 			)
-			(pin passive line
+			(pin unspecified line
 				(at -5.08 0 0)
 				(length 1.27)
 				(name "1"
@@ -372,7 +372,7 @@
 					)
 				)
 			)
-			(pin passive line
+			(pin unspecified line
 				(at 5.08 0 180)
 				(length 1.27)
 				(name "2"

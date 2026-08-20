@@ -132,7 +132,7 @@
 					(type background)
 				)
 			)
-			(pin passive line
+			(pin input line
 				(at -2.54 0 0)
 				(length 2.54)
 				(name "B"
@@ -150,7 +150,7 @@
 					)
 				)
 			)
-			(pin passive line
+			(pin input line
 				(at 2.54 5.08 270)
 				(length 2.54)
 				(name "C"
@@ -168,7 +168,7 @@
 					)
 				)
 			)
-			(pin passive line
+			(pin input line
 				(at 2.54 -5.08 90)
 				(length 2.54)
 				(name "E"
@@ -424,7 +424,7 @@
 					(type none)
 				)
 			)
-			(pin passive line
+			(pin unspecified line
 				(at -3.81 0 0)
 				(length 2.54)
 				(name "G"
@@ -442,7 +442,7 @@
 					)
 				)
 			)
-			(pin passive line
+			(pin unspecified line
 				(at 1.27 5.08 270)
 				(length 2.54)
 				(name "D"
@@ -460,7 +460,7 @@
 					)
 				)
 			)
-			(pin passive line
+			(pin unspecified line
 				(at 1.27 -5.08 90)
 				(length 2.54)
 				(name "S"
@@ -645,7 +645,7 @@
 					(type background)
 				)
 			)
-			(pin passive line
+			(pin unspecified line
 				(at -7.62 1.27 0)
 				(length 5.08)
 				(name "B"
@@ -663,7 +663,7 @@
 					)
 				)
 			)
-			(pin passive line
+			(pin unspecified line
 				(at 7.62 8.89 270)
 				(length 5.08)
 				(name "C"
@@ -681,7 +681,7 @@
 					)
 				)
 			)
-			(pin passive line
+			(pin unspecified line
 				(at 7.62 -8.89 90)
 				(length 5.08)
 				(name "E"
@@ -916,7 +916,7 @@
 					(type none)
 				)
 			)
-			(pin passive line
+			(pin unspecified line
 				(at 2.54 5.08 270)
 				(length 2.54)
 				(name "D"
@@ -934,7 +934,7 @@
 					)
 				)
 			)
-			(pin passive line
+			(pin unspecified line
 				(at 2.54 -5.08 90)
 				(length 2.54)
 				(name "S"
@@ -954,7 +954,7 @@
 			)
 		)
 		(symbol "HV10N03_1_1"
-			(pin passive line
+			(pin unspecified line
 				(at -2.54 0 0)
 				(length 2.032)
 				(name "G"
@@ -965,195 +965,6 @@
 					)
 				)
 				(number "1"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-			)
-		)
-		(embedded_fonts no)
-	)
-	(symbol "MMBT3904_C916374"
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(property "Reference" "Q"
-			(at 0 10.16 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "MMBT3904_C916374"
-			(at 0 -10.16 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" "Duc:SOT-23-3_L2.9-W1.3-P1.90-LS2.4-BR"
-			(at 0 -12.7 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "https://lcsc.com/product-detail/Transistors-NPN-PNP_JSMSEMI-MMBT3904_C916374.html"
-			(at 0 -15.24 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "TRANS NPN 40V 200mA SOT-23"
-			(at 0 0 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Manufacturer" "JSMSEMI(杰盛微)"
-			(at 0 -17.78 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "MPN" "MMBT3904"
-			(at 0 -20.32 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "LCSC Part" "C916374"
-			(at 0 -22.86 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "ki_keywords" "Bipolar Transistors - BJT"
-			(at 0 0 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(symbol "MMBT3904_C916374_0_1"
-			(polyline
-				(pts
-					(xy 0 2.29) (xy 0 -2.29)
-				)
-				(stroke
-					(width 0)
-					(type default)
-				)
-				(fill
-					(type none)
-				)
-			)
-			(polyline
-				(pts
-					(xy 0 -0.76) (xy 2.54 -2.54)
-				)
-				(stroke
-					(width 0)
-					(type default)
-				)
-				(fill
-					(type none)
-				)
-			)
-			(polyline
-				(pts
-					(xy 2.54 2.54) (xy 0 0.76)
-				)
-				(stroke
-					(width 0)
-					(type default)
-				)
-				(fill
-					(type none)
-				)
-			)
-			(polyline
-				(pts
-					(xy 2.54 -2.54) (xy 1.78 -1.27) (xy 1.02 -2.29) (xy 2.54 -2.54)
-				)
-				(stroke
-					(width 0)
-					(type default)
-				)
-				(fill
-					(type background)
-				)
-			)
-			(pin input line
-				(at -2.54 0 0)
-				(length 2.54)
-				(name "B"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(number "1"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-			)
-			(pin input line
-				(at 2.54 5.08 270)
-				(length 2.54)
-				(name "C"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(number "3"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-			)
-			(pin input line
-				(at 2.54 -5.08 90)
-				(length 2.54)
-				(name "E"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(number "2"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -1549,4 +1360,112 @@
 		)
 		(embedded_fonts no)
 	)
+
+  (symbol "MMBT3904_C916374"
+  (property "Description" "TRANS NPN 40V 200mA SOT-23" (at 0 0 0) (effects (font (size 1.27 1.27)) (hide yes)))
+    (in_bom yes)
+    (on_board yes)
+    (property
+      "Reference"
+      "Q"
+      (id 0)
+      (at 0 10.16 0)
+      (effects (font (size 1.27 1.27) ) )
+    )
+    (property
+      "Value"
+      "MMBT3904_C916374"
+      (id 1)
+      (at 0 -10.16 0)
+      (effects (font (size 1.27 1.27) ) )
+    )
+    (property "Footprint" "Duc:SOT-23-3_L2.9-W1.3-P1.90-LS2.4-BR"
+      (id 2)
+      (at 0 -12.70 0)
+      (effects (font (size 1.27 1.27) ) hide)
+    )
+    (property
+      "Datasheet"
+      "https://lcsc.com/product-detail/Transistors-NPN-PNP_JSMSEMI-MMBT3904_C916374.html"
+      (id 3)
+      (at 0 -15.24 0)
+      (effects (font (size 1.27 1.27) ) hide)
+    )
+    (property
+      "Manufacturer"
+      "JSMSEMI(杰盛微)"
+      (id 4)
+      (at 0 -17.78 0)
+      (effects (font (size 1.27 1.27) ) hide)
+    )
+    (property
+      "MPN"
+      "MMBT3904"
+      (id 5)
+      (at 0 -20.32 0)
+      (effects (font (size 1.27 1.27) ) hide)
+    )
+    (property
+      "LCSC Part"
+      "C916374"
+      (id 6)
+      (at 0 -22.86 0)
+      (effects (font (size 1.27 1.27) ) hide)
+    )
+    (property
+      "ki_keywords"
+      "Bipolar Transistors - BJT"
+      (id 8)
+      (at 0 -25.40 0)
+      (effects (font (size 1.27 1.27) ) hide)
+    )
+    (symbol "MMBT3904_C916374_0_1"
+      (polyline
+        (pts
+          (xy 0.00 2.29) (xy 0.00 -2.29)
+        )
+        (stroke (width 0) (type default))
+        (fill (type none))
+      )
+      (polyline
+        (pts
+          (xy 0.00 -0.76) (xy 2.54 -2.54)
+        )
+        (stroke (width 0) (type default))
+        (fill (type none))
+      )
+      (polyline
+        (pts
+          (xy 2.54 2.54) (xy 0.00 0.76)
+        )
+        (stroke (width 0) (type default))
+        (fill (type none))
+      )
+      (polyline
+        (pts
+          (xy 2.54 -2.54) (xy 1.78 -1.27) (xy 1.02 -2.29) (xy 2.54 -2.54)
+        )
+        (stroke (width 0) (type default))
+        (fill (type background))
+      )
+      (pin input line
+        (at 2.54 -5.08 90)
+        (length 2.54)
+        (name "E" (effects (font (size 1.27 1.27))))
+        (number "2" (effects (font (size 1.27 1.27))))
+      )
+      (pin input line
+        (at 2.54 5.08 270)
+        (length 2.54)
+        (name "C" (effects (font (size 1.27 1.27))))
+        (number "3" (effects (font (size 1.27 1.27))))
+      )
+      (pin input line
+        (at -2.54 -0.00 0)
+        (length 2.54)
+        (name "B" (effects (font (size 1.27 1.27))))
+        (number "1" (effects (font (size 1.27 1.27))))
+      )
+    )
+  )
 )

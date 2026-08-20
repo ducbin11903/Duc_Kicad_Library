@@ -677,7 +677,7 @@
 		(in_bom no)
 		(on_board no)
 		(property "Reference" "#PWR"
-			(at -0.254 8.636 0)
+			(at 0 0 0)
 			(do_not_autoplace)
 			(effects
 				(font
@@ -687,7 +687,7 @@
 			)
 		)
 		(property "Value" "GND"
-			(at -2.54 -4.064 0)
+			(at 0 0 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -713,7 +713,7 @@
 			)
 		)
 		(property "Description" "Power Symbol - Global Ground"
-			(at 0 -6.858 0)
+			(at 0 0 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -723,10 +723,10 @@
 		)
 		(symbol "GND_1_0"
 			(pin power_in line
-				(at -2.54 0 270)
-				(length 1.27)
+				(at 0 1.27 90)
+				(length 0)
 				(hide yes)
-				(name "GND"
+				(name "-VBAT"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -745,7 +745,7 @@
 		(symbol "GND_1_1"
 			(polyline
 				(pts
-					(xy -2.54 0) (xy -2.54 -1.27) (xy -1.778 -1.27) (xy -2.54 -2.54) (xy -3.302 -1.27) (xy -2.54 -1.27)
+					(xy 0 1.27) (xy 0 2.54) (xy 0.762 2.54) (xy 0 3.81) (xy -0.762 2.54) (xy 0 2.54)
 				)
 				(stroke
 					(width 0)
