@@ -20,12 +20,39 @@ CONFIG_FILE="kicad_lib_manager.cfg"
 
 LIB_ROOT=os.getcwd()
 
+_CFG={}
+
+def _cfg_path():
+    base=os.path.dirname(sys.executable) if getattr(sys,"frozen",False) \
+         else os.path.dirname(os.path.abspath(__file__))
+    return os.path.join(base,CONFIG_FILE)
+
+def cfg_save():
+    try:
+        with open(_cfg_path(),"w",encoding="utf-8") as f:
+            for k,v in _CFG.items(): f.write(f"{k}={v}\n")
+    except Exception: pass
+
+def cfg_load():
+    global _CFG
+    _CFG={}
+    try: raw=open(_cfg_path(),encoding="utf-8").read()
+    except Exception: return
+    for line in raw.splitlines():
+        line=line.strip()
+        if not line: continue
+        if "=" in line:
+            k,v=line.split("=",1); _CFG[k.strip()]=v.strip()
+        elif os.path.isdir(line):
+            _CFG["root"]=line          # old single-line format
+
 def set_root(path):
     global LIB_ROOT
     LIB_ROOT=os.path.abspath(path)
-    try:
-        with open(CONFIG_FILE,"w",encoding="utf-8") as f: f.write(LIB_ROOT)
-    except Exception: pass
+    _CFG["root"]=LIB_ROOT; cfg_save()
+
+def set_easyeda(path):
+    _CFG["easyeda"]=os.path.abspath(path); cfg_save()
 
 def looks_like_root(d):
     """A library root has at least symbols/ or parts.xlsx in it."""
@@ -53,12 +80,10 @@ def auto_detect_root(start):
 def load_root():
     """Restore the saved root; otherwise auto-detect from the current folder."""
     global LIB_ROOT
-    try:
-        if os.path.exists(CONFIG_FILE):
-            q=open(CONFIG_FILE,encoding="utf-8").read().strip()
-            if q and looks_like_root(q):
-                LIB_ROOT=q; return
-    except Exception: pass
+    cfg_load()
+    q=_CFG.get("root","")
+    if q and looks_like_root(q):
+        LIB_ROOT=q; return
     found=auto_detect_root(LIB_ROOT)
     if found: LIB_ROOT=found
 
@@ -162,11 +187,73 @@ def apply_icon(win):
 
 def norm_cat(r): return CATMAP.get(r.strip().lower(), r.strip().title() if r.strip() else DEF_CAT)
 def sym_path(c): return os.path.join(sym_dir(),f"{LIB_PFX}-{c}.kicad_sym")
-def find_easyeda():
-    sc=os.path.dirname(sys.executable)
-    n="easyeda2kicad.exe" if os.name=="nt" else "easyeda2kicad"
-    c=os.path.join(sc,n)
-    return c if os.path.isfile(c) else shutil.which("easyeda2kicad")
+def run_quiet(cmd, cwd=None, timeout=180):
+    """Run a command and always return (returncode, stdout, stderr) as safe text."""
+    kw={}
+    if os.name=="nt":
+        kw["creationflags"]=getattr(subprocess,"CREATE_NO_WINDOW",0)
+    try:
+        r=subprocess.run(cmd,capture_output=True,cwd=cwd,timeout=timeout,**kw)
+    except subprocess.TimeoutExpired:
+        return 1,"","timed out"
+    except FileNotFoundError as ex:
+        return 1,"",f"program not found: {ex}"
+    except OSError as ex:
+        return 1,"",f"cannot start: {ex}"
+    dec=lambda b:(b or b"").decode("utf-8","replace").strip()
+    return r.returncode,dec(r.stdout),dec(r.stderr)
+
+
+def easyeda_works(path):
+    """A candidate is only usable if it actually starts."""
+    if not path or not os.path.isfile(path): return False
+    rc,out,err=run_quiet([path,"--version"],timeout=25)
+    if rc==0: return True
+    return "usage" in (out+err).lower() or "easyeda" in (out+err).lower()
+
+
+def easyeda_candidates():
+    exe="easyeda2kicad.exe" if os.name=="nt" else "easyeda2kicad"
+    out=[]
+    saved=_CFG.get("easyeda","")
+    if saved: out.append(saved)
+    out.append(os.path.join(os.path.dirname(sys.executable),exe))
+    out.append(os.path.join(sys.prefix,"Scripts",exe))
+    out.append(os.path.join(sys.prefix,"bin",exe))
+    prog=os.path.dirname(sys.executable) if getattr(sys,"frozen",False) \
+         else os.path.dirname(os.path.abspath(__file__))
+    for base in (LIB_ROOT,prog,os.getcwd()):
+        out.append(os.path.join(base,".venv","Scripts",exe))
+        out.append(os.path.join(base,".venv","bin",exe))
+        out.append(os.path.join(base,"venv","Scripts",exe))
+    if os.name=="nt":
+        import glob
+        for env in ("APPDATA","LOCALAPPDATA"):
+            root=os.environ.get(env,"")
+            if not root: continue
+            out+=sorted(glob.glob(os.path.join(root,"Python","Python*","Scripts",exe)),reverse=True)
+            out+=sorted(glob.glob(os.path.join(root,"Programs","Python","Python*","Scripts",exe)),reverse=True)
+        for drive in ("C:\\","D:\\"):
+            out+=sorted(glob.glob(os.path.join(drive,"Python*","Scripts",exe)),reverse=True)
+    w=shutil.which("easyeda2kicad")
+    if w: out.append(w)
+    seen=set(); uniq=[]
+    for c in out:
+        if c and c not in seen and os.path.isfile(c):
+            seen.add(c); uniq.append(c)
+    return uniq
+
+
+def find_easyeda(verify=True):
+    """Return the first easyeda2kicad that actually runs, remembering the winner."""
+    cands=easyeda_candidates()
+    if not verify:
+        return cands[0] if cands else None
+    for c in cands:
+        if easyeda_works(c):
+            if _CFG.get("easyeda")!=c: set_easyeda(c)
+            return c
+    return None
 
 def open_path(p, create=False):
     """Open a file or folder in the system file browser."""
@@ -693,7 +780,22 @@ class DataGrid(tk.Frame):
             for f in self._filters: f.set("")
 
     # ── Paste ─────────────────────────────────────────────────────────────────
+    def _focused_cell(self):
+        """Return (row_index, col_index) of the cell that currently has focus."""
+        w=self.focus_get()
+        if w is None: return None
+        for ri,r in enumerate(self._rows):
+            for ci,wd in enumerate(r["widgets"]):
+                if wd is w: return ri,ci
+        return None
+
     def _paste_evt(self,event):
+        """
+        Ctrl+V behaviour:
+          plain text, no tab, one line   -> normal paste inside the cell
+          one column, several lines      -> fill that column downward
+          tab separated                  -> add whole rows
+        """
         w=self.focus_get()
         if not w: return
         p=w; inside=False
@@ -701,12 +803,58 @@ class DataGrid(tk.Frame):
             if p is self: inside=True; break
             p=getattr(p,"master",None)
         if not inside: return
-        self.paste_clipboard(); return "break"
+
+        try: clip=self.clipboard_get()
+        except Exception: return
+
+        lines=[l for l in clip.replace("\r","").split("\n") if l.strip()]
+        if not lines: return "break"
+
+        has_tab=any("\t" in l for l in lines)
+
+        # single value -> let the Entry handle it normally
+        if len(lines)==1 and not has_tab:
+            return
+
+        # one column, several lines -> fill downward from the focused cell
+        if not has_tab:
+            cell=self._focused_cell()
+            if cell:
+                ri,ci=cell
+                self._fill_column(ri,ci,lines)
+                return "break"
+
+        # tab separated table -> add rows
+        self.paste_clipboard()
+        return "break"
+
+    def _fill_column(self, row, col, values):
+        """Write a list of values down one column, creating rows when needed."""
+        name=self.cols[col]
+        for k,val in enumerate(values):
+            v=val.strip()
+            if name=="Category": v=norm_cat(v)
+            elif name=="Type":   v=v.upper()
+            elif name=="Side":   v=v.upper()[:1]
+            while row+k>=len(self._rows): self.add_row()
+            self._rows[row+k]["vars"][col].set(v)
+        if self.on_change: self.on_change()
 
     def paste_clipboard(self):
+        """Add one row per clipboard line. Columns split on tab, else on comma."""
         try: clip=self.clipboard_get()
         except Exception: return
         lines=[l for l in clip.replace("\r","").split("\n") if l.strip()]
+        if not lines: return
+        # a single value with no separator belongs in one cell, not a new row
+        if len(lines)==1 and "\t" not in lines[0] and "," not in lines[0]:
+            w=self.focus_get()
+            if isinstance(w,tk.Entry):
+                try:
+                    if w.selection_present(): w.delete("sel.first","sel.last")
+                    w.insert("insert",lines[0])
+                    return
+                except Exception: pass
         for line in lines:
             cells=[c.strip() for c in (line.split("\t") if "\t" in line else line.split(","))]
             while len(cells)<len(self.cols): cells.append("")
@@ -815,6 +963,26 @@ class QueueTab(tk.Frame):
 
         self.log=LogBox(self,height=6); self.log.pack(fill="x",padx=10,pady=(6,10))
 
+    def _locate_easyeda(self):
+        """Ask the user to point at easyeda2kicad.exe, then remember it."""
+        exe="easyeda2kicad.exe" if os.name=="nt" else "easyeda2kicad"
+        hint=("easyeda2kicad was not found automatically.\n\n"
+              "It is installed with:\n"
+              "    pip install easyeda2kicad\n\n"
+              "and normally lives in a Python Scripts folder, for example:\n"
+              "    C:\\Users\\<you>\\AppData\\Roaming\\Python\\Python313\\Scripts\\"+exe+
+              "\n\nLocate the file now?")
+        if not messagebox.askyesno("easyeda2kicad not found",hint): return None
+        path=filedialog.askopenfilename(
+            title="Select easyeda2kicad",
+            filetypes=[("easyeda2kicad",exe),("Programs","*.exe"),("All files","*.*")])
+        if not path: return None
+        if not os.path.isfile(path):
+            messagebox.showerror("Not a file","That path does not exist."); return None
+        set_easyeda(path)
+        self.log.log(f"Using easyeda2kicad: {path}","ok")
+        return path
+
     def _upd(self): self.lbl_n.config(text=f"{self.grid_w.count()} rows")
     def _add_row(self): self.grid_w.add_row(["", "", "Misc", ""]); self._upd()
     def _quick_add(self):
@@ -841,8 +1009,8 @@ class QueueTab(tk.Frame):
         if not rows: messagebox.showinfo("Queue empty","Add LCSC parts first."); return
         ez=find_easyeda()
         if not ez:
-            messagebox.showerror("Not found","easyeda2kicad not found.\nRun: pip install easyeda2kicad")
-            return
+            ez=self._locate_easyeda()
+            if not ez: return
         # easyeda2kicad is unreliable with non-ASCII characters in the path
         try: LIB_ROOT.encode("ascii")
         except UnicodeEncodeError:
@@ -856,7 +1024,9 @@ class QueueTab(tk.Frame):
 
         self._running=True
         self.btn_imp.config(state="disabled",text="IMPORTING...")
-        self.log.clear(); self.pbar["value"]=0; self.pbar["maximum"]=len(rows)
+        self.log.clear()
+        self.log.log(f"easyeda2kicad: {ez}","dim")
+        self.pbar["value"]=0; self.pbar["maximum"]=len(rows)
         mq=TQ.Queue()
         def work():
             ensure_dirs(); ok=[]; fail=[]
@@ -864,14 +1034,13 @@ class QueueTab(tk.Frame):
                 mq.put(("log",f"[{i}/{len(rows)}] {lcsc}  {name}","info"))
                 sf=sym_path(cat or DEF_CAT); ensure_sym(sf); clear_temp()
                 out_base=os.path.join(temp_dir(),"temp")
-                res=subprocess.run([ez,"--full",f"--lcsc_id={lcsc}",
-                                    "--output",out_base],
-                                   capture_output=True,text=True,
-                                   cwd=LIB_ROOT)
-                if res.returncode!=0:
-                    err=(res.stderr.strip() or res.stdout.strip())[:200]
-                    mq.put(("log",f"    FAILED: {err}","err"))
-                    mq.put(("log",f"    output base was: {out_base}","dim"))
+                rc,so,se=run_quiet([ez,"--full",f"--lcsc_id={lcsc}",
+                                    "--output",out_base],cwd=LIB_ROOT)
+                if rc!=0:
+                    err=(se or so or f"exit code {rc}, no message").strip()
+                    for line in err.splitlines()[:6]:
+                        mq.put(("log",f"    {line}","err"))
+                    mq.put(("log",f"    output base: {out_base}","dim"))
                     fail.append([lcsc,name,cat,note]); mq.put(("prog",i,None)); continue
                 blocks=extract_blocks(os.path.join(temp_dir(),"temp.kicad_sym"))
                 exist={b["name"] for b in extract_blocks(sf)}
@@ -1329,6 +1498,9 @@ class ToolsTab(tk.Frame):
              self._dupes,"#7C6A9C","#61527C"),
             ("STATISTICS","Count symbols per category, footprints and 3D models",
              self._stats,SLATE,SLATE_D),
+            ("CHECK EASYEDA2KICAD","List every easyeda2kicad found on this machine and "
+             "test which ones actually run",
+             self._check_easyeda,"#4E6E81","#3A5462"),
             ("SYNC DESCRIPTIONS","Copy the Note column from the Library sheet into "
              "each symbol's Description field in KiCad",
              self._sync_desc,"#B07B2E","#8A5F22"),
@@ -1433,6 +1605,47 @@ class ToolsTab(tk.Frame):
         cov=(len(r['footprints'])/total*100) if total else 0
         self.log.log("","dim")
         self.log.log(f"  Footprint coverage  {cov:.0f}%","ok" if cov>80 else "warn")
+
+    def _check_easyeda(self):
+        self.log.clear()
+        self.log.log("EASYEDA2KICAD DIAGNOSTIC","info"); self.log.log("-"*60,"dim")
+        cands=easyeda_candidates()
+        if not cands:
+            self.log.log("No easyeda2kicad found anywhere.","err")
+            self.log.log("","dim")
+            self.log.log("Install it with:  pip install easyeda2kicad","info")
+            return
+        good=None
+        for c in cands:
+            rc,out,err=run_quiet([c,"--version"],timeout=25)
+            ok=(rc==0) or "easyeda" in (out+err).lower()
+            self.log.log(("  WORKS   " if ok else "  BROKEN  ")+c,"ok" if ok else "err")
+            if not ok:
+                msg=(err or out or f"exit code {rc}").splitlines()
+                for line in msg[:3]: self.log.log(f"          {line}","dim")
+            elif good is None:
+                good=c
+                ver=(out or err).splitlines()
+                if ver: self.log.log(f"          {ver[0]}","dim")
+        self.log.log("","dim")
+        if good:
+            set_easyeda(good)
+            self.log.log(f"Selected: {good}","ok")
+            self.log.log("Saved to the config file, it will be used from now on.","dim")
+            self._status("easyeda2kicad ready")
+        else:
+            self.log.log("Every copy found is broken.","err")
+            self.log.log("","dim")
+            self.log.log("A virtual environment that was copied or moved keeps the old","warn")
+            self.log.log("interpreter path inside its launcher and stops working. Recreate it:","warn")
+            self.log.log("","dim")
+            self.log.log(f'    cd "{LIB_ROOT}"',"info")
+            self.log.log("    rmdir /s /q .venv","info")
+            self.log.log("    python -m venv .venv","info")
+            self.log.log("    .venv\\Scripts\\activate","info")
+            self.log.log("    pip install easyeda2kicad","info")
+            self.log.log("","dim")
+            self.log.log("Or install it for the whole machine:  pip install easyeda2kicad","info")
 
     def _sync_desc(self):
         """Push the Note column from the Library sheet into every symbol."""

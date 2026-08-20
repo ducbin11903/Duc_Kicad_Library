@@ -1259,8 +1259,8 @@
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
-		(property "Reference" "U"
-			(at 0 12.7 0)
+		(property "Reference" "J"
+			(at -1.778 6.096 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -1348,17 +1348,6 @@
 				)
 				(fill
 					(type background)
-				)
-			)
-			(circle
-				(center -1.27 3.81)
-				(radius 0.38)
-				(stroke
-					(width 0)
-					(type default)
-				)
-				(fill
-					(type none)
 				)
 			)
 			(pin unspecified line
@@ -1458,8 +1447,8 @@
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
-		(property "Reference" "FPC"
-			(at 0 24.13 0)
+		(property "Reference" "J"
+			(at -4.064 17.526 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -2569,7 +2558,7 @@
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
-		(property "Reference" "DC"
+		(property "Reference" "J"
 			(at 0 6.35 0)
 			(effects
 				(font
@@ -2781,7 +2770,7 @@
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
-		(property "Reference" "H"
+		(property "Reference" "J"
 			(at 1.524 7.366 0)
 			(effects
 				(font
@@ -3202,7 +3191,7 @@
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
-		(property "Reference" "H"
+		(property "Reference" "J"
 			(at 0 7.62 0)
 			(effects
 				(font
@@ -3529,14 +3518,14 @@
 			(pin unspecified line
 				(at 6.35 12.7 180)
 				(length 6.35)
-				(name "GND"
+				(name "VBUS"
 					(effects
 						(font
 							(size 1.27 1.27)
 						)
 					)
 				)
-				(number "A1B12"
+				(number "A4B9"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -3554,7 +3543,7 @@
 						)
 					)
 				)
-				(number "A4B9"
+				(number "B4A9"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -3564,24 +3553,6 @@
 			)
 			(pin unspecified line
 				(at 6.35 7.62 180)
-				(length 6.35)
-				(name "SBU2"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(number "B8"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-			)
-			(pin unspecified line
-				(at 6.35 5.08 180)
 				(length 6.35)
 				(name "CC1"
 					(effects
@@ -3599,25 +3570,7 @@
 				)
 			)
 			(pin unspecified line
-				(at 6.35 2.54 180)
-				(length 6.35)
-				(name "Dn2"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(number "B7"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-			)
-			(pin unspecified line
-				(at 6.35 0 180)
+				(at 6.35 5.08 180)
 				(length 6.35)
 				(name "Dp1"
 					(effects
@@ -3635,7 +3588,25 @@
 				)
 			)
 			(pin unspecified line
-				(at 6.35 -2.54 180)
+				(at 6.35 2.54 180)
+				(length 6.35)
+				(name "Dp2"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "B6"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin unspecified line
+				(at 6.35 0 180)
 				(length 6.35)
 				(name "Dn1"
 					(effects
@@ -3653,16 +3624,34 @@
 				)
 			)
 			(pin unspecified line
-				(at 6.35 -5.08 180)
+				(at 6.35 -2.54 180)
 				(length 6.35)
-				(name "Dp2"
+				(name "Dn2"
 					(effects
 						(font
 							(size 1.27 1.27)
 						)
 					)
 				)
-				(number "B6"
+				(number "B7"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin unspecified line
+				(at 6.35 -5.08 180)
+				(length 6.35)
+				(name "CC2"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "B5"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -3691,14 +3680,14 @@
 			(pin unspecified line
 				(at 6.35 -10.16 180)
 				(length 6.35)
-				(name "CC2"
+				(name "SBU2"
 					(effects
 						(font
 							(size 1.27 1.27)
 						)
 					)
 				)
-				(number "B5"
+				(number "B8"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -3709,14 +3698,14 @@
 			(pin unspecified line
 				(at 6.35 -12.7 180)
 				(length 6.35)
-				(name "VBUS"
+				(name "GND"
 					(effects
 						(font
 							(size 1.27 1.27)
 						)
 					)
 				)
-				(number "B4A9"
+				(number "A1B12"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -3838,17 +3827,6 @@
 				)
 				(fill
 					(type background)
-				)
-			)
-			(circle
-				(center -1.27 2.54)
-				(radius 0.38)
-				(stroke
-					(width 0)
-					(type default)
-				)
-				(fill
-					(type none)
 				)
 			)
 			(pin unspecified line
