@@ -4,19 +4,21 @@
 	(generator_version "9.0")
 	(layer "F.Cu")
 	(property "Reference" "REF**"
-		(at 3.88 0.02 0)
+		(at 2.59 0 0)
 		(layer "F.SilkS")
 		(uuid "55f1eb90-c5c5-47d9-9d75-78ffcf5a116d")
 		(effects
 			(font
-				(size 1 1)
-				(thickness 0.15)
+				(size 0.5 0.5)
+				(thickness 0.1)
+				(bold yes)
 			)
 		)
 	)
 	(property "Value" "C0603"
 		(at 0 1.67 0)
 		(layer "F.Fab")
+		(hide yes)
 		(uuid "a8ae04a1-7676-468c-bab9-052a69329e1f")
 		(effects
 			(font
@@ -205,17 +207,6 @@
 		)
 		(layer "F.CrtYd")
 		(uuid "a98bc439-77cd-4a1c-8988-36c870aa0d3b")
-	)
-	(fp_text user "${REFERENCE}"
-		(at 0.27 -1.57 0)
-		(layer "F.Fab")
-		(uuid "b3952c3e-38a1-408f-b718-8aa7a15a068d")
-		(effects
-			(font
-				(size 1 1)
-				(thickness 0.15)
-			)
-		)
 	)
 	(pad "1" smd rect
 		(at -0.7 0)
