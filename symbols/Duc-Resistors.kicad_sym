@@ -420,7 +420,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Duc_Library:R0402"
+		(property "Footprint" "Duc:R0402"
 			(at 0 -7.62 0)
 			(effects
 				(font

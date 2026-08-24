@@ -4,19 +4,21 @@
 	(generator_version "9.0")
 	(layer "F.Cu")
 	(property "Reference" "REF**"
-		(at 3.32 0 0)
+		(at 2.1 0.04 0)
 		(layer "F.SilkS")
 		(uuid "e3ab218f-d9e8-4ee6-8d47-cd7e37450ae6")
 		(effects
 			(font
-				(size 1 1)
-				(thickness 0.15)
+				(size 0.5 0.5)
+				(thickness 0.1)
+				(bold yes)
 			)
 		)
 	)
 	(property "Value" "R0402"
 		(at -0.05 1.51 0)
 		(layer "F.Fab")
+		(hide yes)
 		(uuid "c495c010-be5a-4b12-a46e-f647e3617f97")
 		(effects
 			(font
