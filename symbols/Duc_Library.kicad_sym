@@ -1328,7 +1328,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Duc_Library:L0805"
+		(property "Footprint" "Duc:L0805"
 			(at 0 -7.62 0)
 			(effects
 				(font

@@ -878,7 +878,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Duc_Library:QFN-30_L6.0-W4.0-P0.50_TLVM13630RDHR"
+		(property "Footprint" "Duc:QFN-30_L6.0-W4.0-P0.50_TLVM13630RDHR"
 			(at 0 -33.02 0)
 			(effects
 				(font

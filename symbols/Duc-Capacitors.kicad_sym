@@ -752,7 +752,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Duc_Library:C1206"
+		(property "Footprint" "Duc:C1206"
 			(at 0 -7.62 0)
 			(effects
 				(font

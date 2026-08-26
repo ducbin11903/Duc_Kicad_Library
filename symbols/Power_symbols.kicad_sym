@@ -981,7 +981,7 @@
 				(hide yes)
 			)
 		)
-		(property "Footprint" "Duc_Library:TestPoint_Pad_D0.5mm"
+		(property "Footprint" "Duc:TestPoint_Pad_D0.5mm"
 			(at 3.556 -10.668 0)
 			(effects
 				(font

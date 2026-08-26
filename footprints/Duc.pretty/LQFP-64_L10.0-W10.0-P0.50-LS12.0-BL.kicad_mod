@@ -5,19 +5,21 @@
 	(layer "F.Cu")
 	(descr "ARM Cortex-M4 32-bit MCU+FPU, 210 DMIPS, 1024 kB Flash, 192 kB Internal RAM, 51 IOs, 64-pin LQFP, -40 to 85 degC, Tray")
 	(property "Reference" "REF**"
-		(at 0 -9.688 0)
+		(at 0.61 -6.88 0)
 		(layer "F.SilkS")
 		(uuid "539beb01-f99c-4352-9dcf-a0fa8eb4bc44")
 		(effects
 			(font
-				(size 1 1)
-				(thickness 0.15)
+				(size 0.5 0.5)
+				(thickness 0.1)
+				(bold yes)
 			)
 		)
 	)
 	(property "Value" "LQFP-64_L10.0-W10.0-P0.50-LS12.0-BL"
 		(at 0 9.688 0)
 		(layer "F.Fab")
+		(hide yes)
 		(uuid "a49a18e3-6c15-46e6-92fa-3f5fa2899bba")
 		(effects
 			(font
@@ -204,17 +206,6 @@
 		(uuid "6e0e2ce3-315b-4103-9863-287f907af0ca")
 	)
 	(fp_arc
-		(start -4.36 5.48)
-		(mid -4.35873 5.779995)
-		(end -4.362539 5.480021)
-		(stroke
-			(width 0.3)
-			(type solid)
-		)
-		(layer "F.SilkS")
-		(uuid "be49820d-c91d-4f49-b636-a64be3e73885")
-	)
-	(fp_arc
 		(start -3.29 3.01)
 		(mid -3.30746 3.610074)
 		(end -3.29508 3.009874)
@@ -224,17 +215,6 @@
 		)
 		(layer "F.SilkS")
 		(uuid "96cc7d4e-a83b-41ee-b2c7-667983201924")
-	)
-	(fp_circle
-		(center -6 5.99)
-		(end -5.97 5.99)
-		(stroke
-			(width 0.06)
-			(type solid)
-		)
-		(fill no)
-		(layer "F.SilkS")
-		(uuid "2a4edd20-7967-4ba1-bea8-196bb6e8eb86")
 	)
 	(fp_poly
 		(pts
@@ -247,17 +227,6 @@
 		(fill yes)
 		(layer "F.SilkS")
 		(uuid "34835244-b470-47df-9db9-15b4c03bc280")
-	)
-	(fp_circle
-		(center -3.76 6.31)
-		(end -3.61 6.31)
-		(stroke
-			(width 0.3)
-			(type solid)
-		)
-		(fill no)
-		(layer "Cmts.User")
-		(uuid "5ac86f54-8f43-41fe-9bd5-dc2f4acd8435")
 	)
 	(fp_line
 		(start -5 -5.01)
@@ -298,17 +267,6 @@
 		)
 		(layer "F.CrtYd")
 		(uuid "64839565-e19b-4a76-afb3-738ff5945ef1")
-	)
-	(fp_text user "${REFERENCE}"
-		(at 0 0 0)
-		(layer "F.Fab")
-		(uuid "9c583fbf-9659-48c7-9102-eaab60837d3c")
-		(effects
-			(font
-				(size 1 1)
-				(thickness 0.15)
-			)
-		)
 	)
 	(pad "1" smd oval
 		(at -3.75 5.69)

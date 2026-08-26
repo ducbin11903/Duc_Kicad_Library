@@ -617,7 +617,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Duc_Library:UQFN-28_L6.0-W6.0-P0.65-BL-EP4.0"
+		(property "Footprint" "Duc:UQFN-28_L6.0-W6.0-P0.65-BL-EP4.0"
 			(at 0 -27.94 0)
 			(effects
 				(font
