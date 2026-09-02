@@ -40,7 +40,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" "YSX321SL 16MHZ 9PF 10PPM -40~+85℃"
+		(property "Description" "CRYSTAL 16MHz 9pF SMD"
 			(at 0 0 0)
 			(effects
 				(font

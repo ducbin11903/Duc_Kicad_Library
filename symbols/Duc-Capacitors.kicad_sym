@@ -1079,7 +1079,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" "330uF ±20% 25V SMD"
+		(property "Description" "CAP ALUM POLY 330uF ±20% 25V SMD"
 			(at -0.254 -3.302 0)
 			(effects
 				(font

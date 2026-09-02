@@ -3,7 +3,7 @@
 KiCad Library Manager
 Build EXE: pyinstaller --onefile --windowed --name KiCad_Lib_Manager kicad_lib_manager.py
 """
-import os, sys, re, subprocess, shutil, threading, queue as TQ
+import os, sys, re, time, subprocess, shutil, threading, queue as TQ
 import tkinter as tk
 from tkinter import ttk, messagebox, filedialog
 from datetime import datetime
@@ -111,7 +111,28 @@ def m3d_dir():
             if len(shapes)==1: return os.path.join(d,shapes[0])
             return d
     return sub
-def temp_dir():   return P("temp")
+def _is_ascii(t):
+    try: t.encode("ascii"); return True
+    except UnicodeEncodeError: return False
+
+def temp_dir():
+    """
+    Scratch folder for easyeda2kicad.
+    The tool mangles paths containing non-English characters, so when the
+    library sits in such a folder we work in a plain ASCII location instead
+    and copy the results across afterwards.
+    """
+    local=P("temp")
+    if _is_ascii(local): return local
+    import tempfile
+    for base in (tempfile.gettempdir(), "C:\\Temp", "C:\\", "/tmp"):
+        if not base: continue
+        cand=os.path.join(base,"kicad_lib_mgr")
+        if _is_ascii(cand):
+            try:
+                os.makedirs(cand,exist_ok=True); return cand
+            except Exception: continue
+    return local
 PIN_LEN=2.54; PIN_SPC=2.54; BODY_W=10.16; FSYM=1.27
 
 CATS=["Resistors","Capacitors","Inductors","Diodes","Transistors","MCUs","ICs",
@@ -202,6 +223,30 @@ def run_quiet(cmd, cwd=None, timeout=180):
         return 1,"",f"cannot start: {ex}"
     dec=lambda b:(b or b"").decode("utf-8","replace").strip()
     return r.returncode,dec(r.stdout),dec(r.stderr)
+
+
+def classify_easyeda_error(text):
+    """Turn an easyeda2kicad traceback into one short, actionable sentence."""
+    t=(text or "").lower()
+    if "jsondecodeerror" in t or "expecting value" in t:
+        return ("EasyEDA returned no data for this part",
+                "Either the part has no EasyEDA symbol, or the server is "
+                "refusing requests for now. Check the part on easyeda.com, "
+                "and slow down if you imported many parts in a row.")
+    if "404" in t or "not found" in t:
+        return ("Part not found on EasyEDA",
+                "Check the LCSC number. Some newer parts have no EasyEDA drawing yet.")
+    if any(k in t for k in ("timeout","timed out","connection","ssl","socket",
+                            "max retries","nameresolution","getaddrinfo")):
+        return ("Network problem reaching EasyEDA",
+                "Check the connection, VPN or company proxy, then try again.")
+    if "already" in t and "exist" in t:
+        return ("The part is already in the target file",
+                "Nothing to do, it is present in the library.")
+    if "permission" in t or "access is denied" in t:
+        return ("A file could not be written",
+                "Close KiCad and any program holding the library files open.")
+    return ("","")
 
 
 def easyeda_works(path):
@@ -354,10 +399,32 @@ def ensure_sym(p):
         with open(p,"w",encoding="utf-8") as f:
             f.write("(kicad_symbol_lib (version 20231120) (generator duc_lib)\n)\n")
 def clear_temp():
+    """
+    Empty the scratch folder. easyeda2kicad refuses to write a symbol that is
+    already present in the target file, so leftovers here make it exit with an
+    error instead of producing anything.
+    """
     t=temp_dir()
-    if os.path.exists(t): shutil.rmtree(t,ignore_errors=True)
+    if os.path.exists(t):
+        shutil.rmtree(t,ignore_errors=True)
+    if os.path.exists(t):
+        # rmtree was blocked (file lock, antivirus): delete what we can
+        for dirpath,dirnames,names in os.walk(t,topdown=False):
+            for n in names:
+                try: os.remove(os.path.join(dirpath,n))
+                except Exception: pass
+            for d in dirnames:
+                try: os.rmdir(os.path.join(dirpath,d))
+                except Exception: pass
     os.makedirs(t,exist_ok=True)
     return t
+
+
+def temp_is_clean():
+    t=temp_dir()
+    try: return not any(os.scandir(t))
+    except Exception: return True
+
 
 def extract_blocks(fp):
     if not os.path.exists(fp): return []
@@ -1011,52 +1078,99 @@ class QueueTab(tk.Frame):
         if not ez:
             ez=self._locate_easyeda()
             if not ez: return
-        # easyeda2kicad is unreliable with non-ASCII characters in the path
-        try: LIB_ROOT.encode("ascii")
-        except UnicodeEncodeError:
-            if not messagebox.askyesno("Path warning",
-                "The library folder contains non-English characters:\n\n"
-                +LIB_ROOT+
-                "\n\neasyeda2kicad often fails on paths like this. Moving the "
-                "library to a plain path such as D:\\KiCadLibs\\Duc_Kicad_Library "
-                "is strongly recommended.\n\nTry the import anyway?"):
-                return
 
         self._running=True
         self.btn_imp.config(state="disabled",text="IMPORTING...")
         self.log.clear()
         self.log.log(f"easyeda2kicad: {ez}","dim")
+        td=temp_dir()
+        if os.path.abspath(td)!=os.path.abspath(P("temp")):
+            self.log.log(f"scratch folder: {td}","warn")
+            self.log.log("  (the library path has non-English characters, "
+                         "so a plain folder is used for the download)","dim")
         self.pbar["value"]=0; self.pbar["maximum"]=len(rows)
         mq=TQ.Queue()
         def work():
             ensure_dirs(); ok=[]; fail=[]
             for i,(lcsc,name,cat,note) in enumerate(rows,1):
                 mq.put(("log",f"[{i}/{len(rows)}] {lcsc}  {name}","info"))
-                sf=sym_path(cat or DEF_CAT); ensure_sym(sf); clear_temp()
+                sf=sym_path(cat or DEF_CAT); ensure_sym(sf)
+                clear_temp()
+                if not temp_is_clean():
+                    mq.put(("log","    scratch folder could not be emptied - "
+                                  "close KiCad or any file explorer showing it","warn"))
                 out_base=os.path.join(temp_dir(),"temp")
-                rc,so,se=run_quiet([ez,"--full",f"--lcsc_id={lcsc}",
-                                    "--output",out_base],cwd=LIB_ROOT)
-                if rc!=0:
-                    err=(se or so or f"exit code {rc}, no message").strip()
-                    for line in err.splitlines()[:6]:
-                        mq.put(("log",f"    {line}","err"))
-                    mq.put(("log",f"    output base: {out_base}","dim"))
+                attempts=3
+                for attempt in range(1,attempts+1):
+                    rc,so,se=run_quiet([ez,"--full","--overwrite",
+                                        f"--lcsc_id={lcsc}",
+                                        "--output",out_base],cwd=LIB_ROOT)
+                    if os.path.exists(os.path.join(temp_dir(),"temp.kicad_sym")):
+                        break
+                    short,_=classify_easyeda_error(se+so)
+                    retryable=short.startswith(("EasyEDA returned no data",
+                                                "Network problem"))
+                    if attempt<attempts and retryable:
+                        wait=attempt*4
+                        mq.put(("log",f"    attempt {attempt} failed, "
+                                      f"waiting {wait}s before retrying","warn"))
+                        time.sleep(wait); clear_temp()
+                    else:
+                        break
+                produced=os.path.exists(os.path.join(temp_dir(),"temp.kicad_sym"))
+                if rc!=0 and not produced:
+                    lines=[l.rstrip() for l in (se+"\n"+so).splitlines() if l.strip()]
+                    real=[l for l in lines if "[INFO]" not in l] or lines
+                    for line in real[-6:]:
+                        tag="err"
+                        if "[INFO]" in line: tag="dim"
+                        elif "[WARNING]" in line: tag="warn"
+                        mq.put(("log",f"    {line}",tag))
+                    if not real:
+                        mq.put(("log",f"    exit code {rc}, no message","err"))
+                    mq.put(("log",f"    working folder: {temp_dir()}","dim"))
                     fail.append([lcsc,name,cat,note]); mq.put(("prog",i,None)); continue
-                blocks=extract_blocks(os.path.join(temp_dir(),"temp.kicad_sym"))
+                if rc!=0 and produced:
+                    mq.put(("log",f"    exit code {rc} but files were created, continuing","warn"))
+                # ── symbol ────────────────────────────────────────────────
+                tsym=os.path.join(temp_dir(),"temp.kicad_sym")
+                blocks=extract_blocks(tsym)
+                if not blocks:
+                    short,hint=classify_easyeda_error(se+so)
+                    if short:
+                        mq.put(("log",f"    {short}","err"))
+                        mq.put(("log",f"    {hint}","dim"))
+                    else:
+                        for line in [l for l in (se+"\n"+so).splitlines()
+                                     if l.strip() and "[INFO]" not in l][-4:]:
+                            mq.put(("log",f"    {line}","err"))
+                    mq.put(("log",f"    https://lcsc.com/search?q={lcsc}","dim"))
                 exist={b["name"] for b in extract_blocks(sf)}
-                s_ok=False
+                added_syms, kept_syms = [], []
                 for b in blocks:
-                    if b["name"] in exist: continue
+                    if b["name"] in exist:
+                        kept_syms.append(b["name"]); continue
                     content=b["content"]
                     if note:                       # Note column -> KiCad Description
                         content=set_description(content,note)
-                    merge_block(content,sf); s_ok=True
-                fpd=os.path.join(temp_dir(),"temp.pretty"); f_ok=os.path.exists(fpd)
-                if f_ok:
+                    merge_block(content,sf); added_syms.append(b["name"])
+                # a symbol counts as present whether it was just written or was there before
+                s_ok=bool(added_syms or kept_syms)
+                if added_syms:
+                    s_txt=f"symbol added ({', '.join(added_syms)})"
+                elif kept_syms:
+                    s_txt=f"symbol already in {LIB_PFX}-{cat} ({', '.join(kept_syms)})"
+                else:
+                    s_txt="NO SYMBOL in the downloaded file"
+
+                # ── footprint ─────────────────────────────────────────────
+                fpd=os.path.join(temp_dir(),"temp.pretty")
+                added_fp, kept_fp = [], []
+                if os.path.exists(fpd):
                     os.makedirs(fp_dir(),exist_ok=True)
                     for fn in os.listdir(fpd):
                         d=os.path.join(fp_dir(),fn)
-                        if os.path.exists(d): continue
+                        if os.path.exists(d): kept_fp.append(fn); continue
                         src=os.path.join(fpd,fn)
                         if fn.endswith(".kicad_mod"):
                             try:                      # rewrite the 3D path on the way in
@@ -1066,14 +1180,33 @@ class QueueTab(tk.Frame):
                                 shutil.copy2(src,d)
                         else:
                             shutil.copy2(src,d)
-                m3d=os.path.join(temp_dir(),"temp.3dshapes"); m_ok=os.path.exists(m3d)
-                if m_ok:
+                        added_fp.append(fn)
+                f_ok=bool(added_fp or kept_fp)
+                if added_fp:   f_txt=f"footprint added ({added_fp[0]})"
+                elif kept_fp:  f_txt=f"footprint already there ({kept_fp[0]})"
+                else:          f_txt="no footprint supplied"
+
+                # ── 3D model ──────────────────────────────────────────────
+                m3d=os.path.join(temp_dir(),"temp.3dshapes")
+                added_m, kept_m = [], []
+                if os.path.exists(m3d):
+                    os.makedirs(m3d_dir(),exist_ok=True)
                     for fn in os.listdir(m3d):
                         d=os.path.join(m3d_dir(),fn)
-                        if not os.path.exists(d): shutil.copy2(os.path.join(m3d,fn),d)
+                        if os.path.exists(d): kept_m.append(fn); continue
+                        shutil.copy2(os.path.join(m3d,fn),d); added_m.append(fn)
+                m_ok=bool(added_m or kept_m)
+                if added_m:   m_txt=f"3D added ({added_m[0]})"
+                elif kept_m:  m_txt=f"3D already there ({kept_m[0]})"
+                else:         m_txt="no 3D model supplied"
+
                 excel_append_lib(lcsc,name,cat,note,s_ok,f_ok,m_ok)
                 ok.append(i-1)
-                mq.put(("log",f"    OK   symbol={s_ok}  footprint={f_ok}  3d={m_ok}","ok"))
+                tag="ok" if s_ok else "warn"
+                mq.put(("log",f"    {s_txt}",tag))
+                mq.put(("log",f"    {f_txt}","ok" if f_ok else "dim"))
+                mq.put(("log",f"    {m_txt}","ok" if m_ok else "dim"))
+                if i<len(rows): time.sleep(1.5)   # be gentle with the EasyEDA API
                 mq.put(("prog",i,None))
             clear_temp(); excel_write_sheet(SHEET_Q,fail)
             mq.put(("done",ok,fail))
