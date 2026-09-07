@@ -4,9 +4,9 @@
 	(generator_version "9.0")
 	(layer "F.Cu")
 	(property "Reference" "REF**"
-		(at 0 -6.375 0)
+		(at 0.67 -3.87 0)
 		(layer "F.SilkS")
-		(uuid "cfae05c5-5490-4b5b-bc63-25c271783c02")
+		(uuid "f7447a0b-0c0c-44ca-858c-27b574f3968e")
 		(effects
 			(font
 				(size 1 1)
@@ -17,7 +17,8 @@
 	(property "Value" "USB-C-SMD_TYPE-C-16PIN-2MD-073"
 		(at 0 6.375 0)
 		(layer "F.Fab")
-		(uuid "e9e056ef-4bbd-413a-b64f-9bb4046dc4af")
+		(hide yes)
+		(uuid "b80d264a-885f-464e-a52d-1bb681eeda21")
 		(effects
 			(font
 				(size 1 1)
@@ -29,7 +30,7 @@
 		(at 0 0 0)
 		(layer "F.Fab")
 		(hide yes)
-		(uuid "5ff386e5-071f-4933-8e2a-9b7e03405ed7")
+		(uuid "6aa05523-279a-4d43-baac-a313011a18ec")
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -41,7 +42,7 @@
 		(at 0 0 0)
 		(layer "F.Fab")
 		(hide yes)
-		(uuid "33e7be4e-7d5f-44f9-a9b1-6cfd76dfdeef")
+		(uuid "f016d7e0-e799-492c-8af4-8f5d306e4055")
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -185,31 +186,18 @@
 		(layer "F.CrtYd")
 		(uuid "d8436192-9e5d-4fac-b237-33e10cb10ad2")
 	)
-	(fp_text user "${REFERENCE}"
-		(at 0 0 0)
-		(layer "F.Fab")
-		(uuid "0400e629-bb42-4377-a58c-58c8adea65c4")
-		(effects
-			(font
-				(size 1 1)
-				(thickness 0.15)
-			)
-		)
-	)
-	(pad "" thru_hole circle
+	(pad "" np_thru_hole circle
 		(at -2.89 -1.3)
 		(size 0.5 0.5)
 		(drill 0.5)
-		(layers "*.Cu" "*.Mask")
-		(remove_unused_layers no)
+		(layers "F&B.Cu" "*.Mask")
 		(uuid "738fbb59-9c5c-4a66-9a37-d4d2959cfe47")
 	)
-	(pad "" thru_hole circle
+	(pad "" np_thru_hole circle
 		(at 2.89 -1.3)
 		(size 0.5 0.5)
 		(drill 0.5)
-		(layers "*.Cu" "*.Mask")
-		(remove_unused_layers no)
+		(layers "F&B.Cu" "*.Mask")
 		(uuid "b4436f0a-977a-4402-8948-82b8cff82c82")
 	)
 	(pad "13" thru_hole oval
