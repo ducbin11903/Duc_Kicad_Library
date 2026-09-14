@@ -114,17 +114,6 @@
 		(layer "F.SilkS")
 		(uuid "51143476-a6ca-4fa9-ad1d-4b2ca3283a7b")
 	)
-	(fp_circle
-		(center -5.25 1.22)
-		(end -5.22 1.22)
-		(stroke
-			(width 0.06)
-			(type solid)
-		)
-		(fill no)
-		(layer "F.SilkS")
-		(uuid "1fb7a88c-44c2-4d14-893a-c4edc5063519")
-	)
 	(fp_line
 		(start -5.5 -1.96)
 		(end -5.5 0.94)
@@ -233,6 +222,18 @@
 	)
 	(embedded_fonts no)
 	(model "${KICAD_USER_LIB}/3dmodels/Duc.3dshapes/CONN-SMD_9P-P1.00_BM09B-SRSS-TB.wrl"
+		(hide yes)
+		(offset
+			(xyz 0 0 0)
+		)
+		(scale
+			(xyz 1 1 1)
+		)
+		(rotate
+			(xyz 0 0 0)
+		)
+	)
+	(model "${KICAD_USER_LIB}/3dmodels/Duc.3dshapes/CONN-SMD_9P-P1.00_BM09B-SRSS-TB.step"
 		(offset
 			(xyz 0 0 0)
 		)

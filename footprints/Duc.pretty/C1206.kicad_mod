@@ -168,17 +168,6 @@
 		(layer "F.SilkS")
 		(uuid "f37c20b2-4ab3-471e-b9d2-e38b77d7b7a8")
 	)
-	(fp_circle
-		(center -1.6 0.8)
-		(end -1.57 0.8)
-		(stroke
-			(width 0.06)
-			(type solid)
-		)
-		(fill no)
-		(layer "F.SilkS")
-		(uuid "d8f71186-6ea4-4ffb-8622-839e32125fb7")
-	)
 	(fp_line
 		(start -1.6 -0.8)
 		(end 1.6 -0.8)
@@ -233,6 +222,7 @@
 	)
 	(embedded_fonts no)
 	(model "${KICAD_USER_LIB}/3dmodels/Duc.3dshapes/C1206_L3.2-W1.6-H1.3.wrl"
+		(hide yes)
 		(offset
 			(xyz 0 0 0)
 		)
@@ -241,6 +231,17 @@
 		)
 		(rotate
 			(xyz 0 0 0)
+		)
+	)
+	(model "${KICAD_USER_LIB}/3dmodels/Duc.3dshapes/C1206_L3.2-W1.6-H1.3.step"
+		(offset
+			(xyz 0 0 0.6)
+		)
+		(scale
+			(xyz 1 1 1)
+		)
+		(rotate
+			(xyz -0 -0 -0)
 		)
 	)
 )

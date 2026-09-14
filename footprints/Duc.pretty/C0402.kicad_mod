@@ -222,6 +222,7 @@
 	)
 	(embedded_fonts no)
 	(model "${KICAD_USER_LIB}/3dmodels/Duc.3dshapes/C0402_L1.0-W0.5-H0.5.wrl"
+		(hide yes)
 		(offset
 			(xyz 0 0 0)
 		)
@@ -230,6 +231,17 @@
 		)
 		(rotate
 			(xyz 0 0 0)
+		)
+	)
+	(model "${KICAD_USER_LIB}/3dmodels/Duc.3dshapes/C0402_L1.0-W0.5-H0.5.step"
+		(offset
+			(xyz 0 0 0.25)
+		)
+		(scale
+			(xyz 1 1 1)
+		)
+		(rotate
+			(xyz -0 -0 -0)
 		)
 	)
 )

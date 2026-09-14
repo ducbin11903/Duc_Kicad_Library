@@ -236,6 +236,7 @@
 	)
 	(embedded_fonts no)
 	(model "${KICAD_USER_LIB}/3dmodels/Duc.3dshapes/SOT-23-5_L2.9-W1.6-H1.1-LS2.8-P0.95.wrl"
+		(hide yes)
 		(offset
 			(xyz 0 0 0)
 		)
@@ -244,6 +245,17 @@
 		)
 		(rotate
 			(xyz 0 0 180)
+		)
+	)
+	(model "${KICAD_USER_LIB}/3dmodels/Duc.3dshapes/SOT-23-5_L2.9-W1.6-H1.1-LS2.8-P0.95.step"
+		(offset
+			(xyz 0 0 0)
+		)
+		(scale
+			(xyz 1 1 1)
+		)
+		(rotate
+			(xyz -0 -0 180)
 		)
 	)
 )

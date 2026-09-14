@@ -61,7 +61,7 @@
 			)
 		)
 	)
-	(attr through_hole)
+	(attr smd)
 	(fp_line
 		(start -1.39 -0.66)
 		(end -0.43 -0.66)
@@ -187,6 +187,7 @@
 	)
 	(embedded_fonts no)
 	(model "${KICAD_USER_LIB}/3dmodels/Duc.3dshapes/R0603.wrl"
+		(hide yes)
 		(offset
 			(xyz 0 0 0)
 		)
@@ -195,6 +196,17 @@
 		)
 		(rotate
 			(xyz 0 0 270)
+		)
+	)
+	(model "${KICAD_USER_LIB}/3dmodels/Duc.3dshapes/R0603.step"
+		(offset
+			(xyz 0 0 0)
+		)
+		(scale
+			(xyz 1 1 1)
+		)
+		(rotate
+			(xyz -0 -0 -90)
 		)
 	)
 )

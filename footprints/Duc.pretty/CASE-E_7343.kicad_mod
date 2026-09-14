@@ -1,36 +1,254 @@
-(module easyeda2kicad:CASE-E_7343 (layer F.Cu) (tedit 5DC5F6A4)
+(footprint "CASE-E_7343"
+	(version 20241229)
+	(generator "pcbnew")
+	(generator_version "9.0")
+	(layer "F.Cu")
 	(descr "100uF (107) ±20% 25V")
+	(property "Reference" "REF**"
+		(at 0 -4 0)
+		(layer "F.SilkS")
+		(uuid "320f06ef-3feb-449f-ad04-5f343ab1443c")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "Value" "CASE-E_7343"
+		(at 0 4 0)
+		(layer "F.Fab")
+		(hide yes)
+		(uuid "5d441ba3-885e-46bb-ba29-0d866ac3f995")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "Datasheet" ""
+		(at 0 0 0)
+		(layer "F.Fab")
+		(hide yes)
+		(uuid "ad3347af-152a-463c-a7bd-baee1c054355")
+		(effects
+			(font
+				(size 1.27 1.27)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "Description" ""
+		(at 0 0 0)
+		(layer "F.Fab")
+		(hide yes)
+		(uuid "496db6fc-128b-498e-b77b-6fbb758ef526")
+		(effects
+			(font
+				(size 1.27 1.27)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "LCSC Part" "C7230"
+		(at 0 0 0)
+		(layer "F.Fab")
+		(hide yes)
+		(uuid "966211be-6505-456a-a510-d99d5fb3a9da")
+		(effects
+			(font
+				(size 1.27 1.27)
+				(thickness 0.15)
+			)
+		)
+	)
 	(attr smd)
-	(fp_text reference REF** (at 0.000 -4.000) (layer F.SilkS)
-		(effects (font (size 1 1) (thickness 0.15)))
+	(fp_line
+		(start -4.68 -2.16)
+		(end -1.43 -2.16)
+		(stroke
+			(width 0.25)
+			(type solid)
+		)
+		(layer "F.SilkS")
+		(uuid "adb937c8-f27a-405d-b3fb-c3e07c3a0316")
 	)
-	(fp_text value CASE-E_7343 (at 0.000 4.000) (layer F.Fab)
-		(effects (font (size 1 1) (thickness 0.15)))
+	(fp_line
+		(start -4.68 2.24)
+		(end -4.68 -2.16)
+		(stroke
+			(width 0.25)
+			(type solid)
+		)
+		(layer "F.SilkS")
+		(uuid "045dec16-55d7-4a68-a65f-a6e7566b0139")
 	)
-	(fp_text user %R (at 0 0) (layer F.Fab)
-		(effects (font (size 1 1) (thickness 0.15)))
+	(fp_line
+		(start -1.43 2.24)
+		(end -4.68 2.24)
+		(stroke
+			(width 0.25)
+			(type solid)
+		)
+		(layer "F.SilkS")
+		(uuid "98b2f51f-bf99-48b5-baf4-5d954505c633")
 	)
-	(property "LCSC Part" "C7230")
-	(fp_line (start -1.43 2.24) (end -4.68 2.24) (layer F.SilkS) (width 0.25))
-	(fp_line (start -4.68 2.24) (end -4.68 -2.16) (layer F.SilkS) (width 0.25))
-	(fp_line (start -4.68 -2.16) (end -1.43 -2.16) (layer F.SilkS) (width 0.25))
-	(fp_line (start 4.85 2.16) (end 4.85 -2.14) (layer F.SilkS) (width 0.33))
-	(fp_line (start 1.04 -2.18) (end 1.03 -2.18) (layer F.SilkS) (width 0.25))
-	(fp_line (start 1.03 -2.18) (end 4.21 -2.18) (layer F.SilkS) (width 0.25))
-	(fp_line (start 4.21 -2.18) (end 5.84 -2.18) (layer F.SilkS) (width 0.25))
-	(fp_line (start 5.84 -2.18) (end 5.84 2.21) (layer F.SilkS) (width 0.25))
-	(fp_line (start 5.84 2.21) (end 1.03 2.21) (layer F.SilkS) (width 0.25))
-	(fp_line (start 1.03 2.21) (end 1.04 2.21) (layer F.SilkS) (width 0.25))
-	(pad 1 smd rect (at 3.20 0.00 180.00) (size 2.500 3.010) (layers F.Cu F.Paste F.Mask))
-	(pad 2 smd rect (at -3.20 0.00 180.00) (size 2.500 3.010) (layers F.Cu F.Paste F.Mask))
-	(fp_circle (center 3.54 -2.15) (end 3.57 -2.15) (layer F.SilkS) (width 0.06))
-	(fp_line (start -3.76 -2.15) (end 3.54 -2.15) (layer F.CrtYd) (width 0.05))
-	(fp_line (start 3.54 -2.15) (end 3.54 2.15) (layer F.CrtYd) (width 0.05))
-	(fp_line (start 3.54 2.15) (end -3.76 2.15) (layer F.CrtYd) (width 0.05))
-	(fp_line (start -3.76 2.15) (end -3.76 -2.15) (layer F.CrtYd) (width 0.05))
+	(fp_line
+		(start 1.03 -2.18)
+		(end 4.21 -2.18)
+		(stroke
+			(width 0.25)
+			(type solid)
+		)
+		(layer "F.SilkS")
+		(uuid "b7979342-9d1a-496e-8285-a39d76114675")
+	)
+	(fp_line
+		(start 1.03 2.21)
+		(end 1.04 2.21)
+		(stroke
+			(width 0.25)
+			(type solid)
+		)
+		(layer "F.SilkS")
+		(uuid "d299a886-1bc4-4dda-937a-bb42ec22a53e")
+	)
+	(fp_line
+		(start 1.04 -2.18)
+		(end 1.03 -2.18)
+		(stroke
+			(width 0.25)
+			(type solid)
+		)
+		(layer "F.SilkS")
+		(uuid "60330ee9-eab4-4923-840d-2c31a482aa72")
+	)
+	(fp_line
+		(start 4.21 -2.18)
+		(end 5.84 -2.18)
+		(stroke
+			(width 0.25)
+			(type solid)
+		)
+		(layer "F.SilkS")
+		(uuid "00efb85a-f5e3-4dca-9353-4c901d777015")
+	)
+	(fp_line
+		(start 4.85 2.16)
+		(end 4.85 -2.14)
+		(stroke
+			(width 0.33)
+			(type solid)
+		)
+		(layer "F.SilkS")
+		(uuid "25deee32-f774-4aba-a929-8c124ffa53c3")
+	)
+	(fp_line
+		(start 5.84 -2.18)
+		(end 5.84 2.21)
+		(stroke
+			(width 0.25)
+			(type solid)
+		)
+		(layer "F.SilkS")
+		(uuid "49b8b05e-fcb2-4c04-8161-e865e0c94502")
+	)
+	(fp_line
+		(start 5.84 2.21)
+		(end 1.03 2.21)
+		(stroke
+			(width 0.25)
+			(type solid)
+		)
+		(layer "F.SilkS")
+		(uuid "ad820b9d-3746-46c8-b7d7-c4c58a42b08a")
+	)
+	(fp_circle
+		(center 3.54 -2.15)
+		(end 3.57 -2.15)
+		(stroke
+			(width 0.06)
+			(type solid)
+		)
+		(fill no)
+		(layer "F.SilkS")
+		(uuid "0f0a1cb4-0ffb-44ec-b9db-86b6e5b762f5")
+	)
+	(fp_line
+		(start -3.76 -2.15)
+		(end 3.54 -2.15)
+		(stroke
+			(width 0.05)
+			(type solid)
+		)
+		(layer "F.CrtYd")
+		(uuid "24027f78-8ce3-471c-b512-ab2f9e2c417b")
+	)
+	(fp_line
+		(start -3.76 2.15)
+		(end -3.76 -2.15)
+		(stroke
+			(width 0.05)
+			(type solid)
+		)
+		(layer "F.CrtYd")
+		(uuid "c4b3f897-4b42-43f2-b986-436647c5c55a")
+	)
+	(fp_line
+		(start 3.54 -2.15)
+		(end 3.54 2.15)
+		(stroke
+			(width 0.05)
+			(type solid)
+		)
+		(layer "F.CrtYd")
+		(uuid "4c3107e7-1ec1-48db-85b1-a06fbc28f64b")
+	)
+	(fp_line
+		(start 3.54 2.15)
+		(end -3.76 2.15)
+		(stroke
+			(width 0.05)
+			(type solid)
+		)
+		(layer "F.CrtYd")
+		(uuid "411ba7df-b8a1-49e9-b0f7-fbdd95e27a2e")
+	)
+	(pad "1" smd rect
+		(at 3.2 0 180)
+		(size 2.5 3.01)
+		(layers "F.Cu" "F.Mask" "F.Paste")
+		(uuid "df4a4d4a-9c2c-4a51-8528-3443d2e8c220")
+	)
+	(pad "2" smd rect
+		(at -3.2 0 180)
+		(size 2.5 3.01)
+		(layers "F.Cu" "F.Mask" "F.Paste")
+		(uuid "39d1be30-28cb-42e1-b509-ddc2a871962b")
+	)
+	(embedded_fonts no)
 	(model "${KICAD_USER_LIB}/3dmodels/Duc.3dshapes/CASE-E_L7.3-W4.3-H4.1.wrl"
-		(offset (xyz 0.000 0.000 0.000))
-		(scale (xyz 1 1 1))
-		(rotate (xyz 0 0 180))
+		(hide yes)
+		(offset
+			(xyz 0 0 0)
+		)
+		(scale
+			(xyz 1 1 1)
+		)
+		(rotate
+			(xyz 0 0 180)
+		)
+	)
+	(model "${KICAD_USER_LIB}/3dmodels/Duc.3dshapes/CASE-E_L7.3-W4.3-H4.1.step"
+		(offset
+			(xyz 0 0 2.1)
+		)
+		(scale
+			(xyz 1 1 1)
+		)
+		(rotate
+			(xyz -0 -0 -180)
+		)
 	)
 )

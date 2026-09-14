@@ -4,7 +4,7 @@
 	(generator_version "9.0")
 	(layer "F.Cu")
 	(property "Reference" "REF**"
-		(at 0 -5.149 0)
+		(at 0.24 -2.58 0)
 		(layer "F.SilkS")
 		(uuid "e8b82953-98db-4247-99c2-8408d8e2dfbe")
 		(effects
@@ -17,6 +17,7 @@
 	(property "Value" "SOT-23-6_L2.9-W1.6-P0.95-LS2.8-BL"
 		(at 0 5.149 0)
 		(layer "F.Fab")
+		(hide yes)
 		(uuid "cdd7b6e2-eb8b-4d04-bff5-3e1af2dd2d48")
 		(effects
 			(font
@@ -133,17 +134,6 @@
 		(layer "F.CrtYd")
 		(uuid "d4b525f8-7cfe-4565-9ae5-1a402d5e5bd0")
 	)
-	(fp_text user "${REFERENCE}"
-		(at 0 0 0)
-		(layer "F.Fab")
-		(uuid "fdfdd2ed-6f17-403f-a524-f00e2928914d")
-		(effects
-			(font
-				(size 1 1)
-				(thickness 0.15)
-			)
-		)
-	)
 	(pad "1" smd rect
 		(at -0.95 1.15)
 		(size 0.532 1.072)
@@ -182,6 +172,7 @@
 	)
 	(embedded_fonts no)
 	(model "${KICAD_USER_LIB}/3dmodels/Duc.3dshapes/SOT-23-6_L2.9-W1.6-H1.5-LS2.8-P0.95.wrl"
+		(hide yes)
 		(offset
 			(xyz 0 0 0)
 		)
@@ -190,6 +181,17 @@
 		)
 		(rotate
 			(xyz 0 0 270)
+		)
+	)
+	(model "${KICAD_USER_LIB}/3dmodels/Duc.3dshapes/SOT-23-6_L2.9-W1.6-H1.5-LS2.8-P0.95.step"
+		(offset
+			(xyz 0 0 0)
+		)
+		(scale
+			(xyz 1 1 1)
+		)
+		(rotate
+			(xyz -0 -0 -90)
 		)
 	)
 )

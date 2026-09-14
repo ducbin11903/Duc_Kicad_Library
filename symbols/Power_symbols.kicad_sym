@@ -611,7 +611,7 @@
 			(hide yes)
 		)
 		(exclude_from_sim no)
-		(in_bom yes)
+		(in_bom no)
 		(on_board yes)
 		(property "Reference" "FM"
 			(at 0 0 0)
@@ -769,7 +769,7 @@
 			(hide yes)
 		)
 		(exclude_from_sim no)
-		(in_bom yes)
+		(in_bom no)
 		(on_board yes)
 		(property "Reference" "H"
 			(at 3.048 -2.032 0)
@@ -824,26 +824,6 @@
 				)
 				(fill
 					(type none)
-				)
-			)
-		)
-		(symbol "Mounting_Hole_M2.4_1_1"
-			(pin input line
-				(at 0 -7.62 90)
-				(length 2.54)
-				(name "1"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(number "1"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
 				)
 			)
 		)

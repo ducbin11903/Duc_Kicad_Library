@@ -9,8 +9,9 @@
 		(uuid "f7447a0b-0c0c-44ca-858c-27b574f3968e")
 		(effects
 			(font
-				(size 1 1)
-				(thickness 0.15)
+				(size 0.5 0.5)
+				(thickness 0.125)
+				(bold yes)
 			)
 		)
 	)
@@ -62,7 +63,7 @@
 			)
 		)
 	)
-	(attr smd)
+	(attr through_hole)
 	(fp_line
 		(start -4.5 1.39)
 		(end -4.5 -0.59)
@@ -112,17 +113,6 @@
 		)
 		(layer "F.SilkS")
 		(uuid "c42847a8-7d43-4e48-9a84-211710d70846")
-	)
-	(fp_circle
-		(center -4.45 -2.65)
-		(end -4.42 -2.65)
-		(stroke
-			(width 0.06)
-			(type solid)
-		)
-		(fill no)
-		(layer "F.SilkS")
-		(uuid "4f7c7a36-4417-4665-aadf-260b7d4ad0dd")
 	)
 	(fp_circle
 		(center -2.89 -1.3)
@@ -306,6 +296,7 @@
 	)
 	(embedded_fonts no)
 	(model "${KICAD_USER_LIB}/3dmodels/Duc.3dshapes/USB-C-SMD_TYPE-C-6PIN-2MD-073.wrl"
+		(hide yes)
 		(offset
 			(xyz 0 0 0)
 		)
@@ -314,6 +305,17 @@
 		)
 		(rotate
 			(xyz 0 0 0)
+		)
+	)
+	(model "${KICAD_USER_LIB}/3dmodels/Duc.3dshapes/USB-C-SMD_TYPE-C-6PIN-2MD-073.step"
+		(offset
+			(xyz 0 -1.3 1.7)
+		)
+		(scale
+			(xyz 1 1 1)
+		)
+		(rotate
+			(xyz -0 -0 -0)
 		)
 	)
 )

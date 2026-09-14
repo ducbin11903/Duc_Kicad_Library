@@ -201,7 +201,7 @@
 		(in_bom yes)
 		(on_board yes)
 		(property "Reference" "C"
-			(at 0 3.302 0)
+			(at -2.54 3.81 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -209,7 +209,7 @@
 			)
 		)
 		(property "Value" "CAP CER 0402"
-			(at 0 -3.81 0)
+			(at 0 10.16 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -217,12 +217,11 @@
 			)
 		)
 		(property "Footprint" "Duc:C0402"
-			(at 0 -12.7 0)
+			(at 2.54 8.382 90)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
-				(hide yes)
 			)
 		)
 		(property "Datasheet" ""
@@ -381,7 +380,7 @@
 		(in_bom yes)
 		(on_board yes)
 		(property "Reference" "C"
-			(at 0 5.08 0)
+			(at -2.54 3.81 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -389,7 +388,7 @@
 			)
 		)
 		(property "Value" "CAP CER 0603"
-			(at 0 -3.81 0)
+			(at 0 10.16 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -397,12 +396,11 @@
 			)
 		)
 		(property "Footprint" "Duc:C0603"
-			(at 0 -7.62 0)
+			(at 2.54 8.382 90)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
-				(hide yes)
 			)
 		)
 		(property "Datasheet" "https://lcsc.com/product-detail/Multilayer-Ceramic-Capacitors-MLCC-SMD-SMT_100nF-104-10-50V_C14663.html"
@@ -558,7 +556,7 @@
 		(in_bom yes)
 		(on_board yes)
 		(property "Reference" "C"
-			(at 0 3.302 0)
+			(at -2.54 3.81 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -566,7 +564,7 @@
 			)
 		)
 		(property "Value" "CAP CER 0805"
-			(at -0.254 -3.81 0)
+			(at 0 10.16 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -574,12 +572,11 @@
 			)
 		)
 		(property "Footprint" "Duc:C0805"
-			(at 0 -7.62 0)
+			(at 2.54 8.128 90)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
-				(hide yes)
 			)
 		)
 		(property "Datasheet" "https://lcsc.com/product-detail/Multilayer-Ceramic-Capacitors-MLCC-SMD-SMT_10uF-106-10-25V_C89831.html"
@@ -738,7 +735,7 @@
 		(in_bom yes)
 		(on_board yes)
 		(property "Reference" "C"
-			(at 0 3.302 0)
+			(at -2.54 3.81 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -746,7 +743,7 @@
 			)
 		)
 		(property "Value" "CAP CER 1206"
-			(at 0 -3.302 0)
+			(at 0 10.16 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -754,12 +751,11 @@
 			)
 		)
 		(property "Footprint" "Duc:C1206"
-			(at 0 -7.62 0)
+			(at 2.54 8.382 90)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
-				(hide yes)
 			)
 		)
 		(property "Datasheet" ""

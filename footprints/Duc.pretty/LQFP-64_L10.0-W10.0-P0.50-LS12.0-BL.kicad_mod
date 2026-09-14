@@ -52,7 +52,7 @@
 			)
 		)
 	)
-	(property "LCSC Part" "C15742"
+	(property "LCSC Part" "C521608"
 		(at 0 0 0)
 		(layer "F.Fab")
 		(hide yes)
@@ -654,6 +654,18 @@
 	)
 	(embedded_fonts no)
 	(model "${KICAD_USER_LIB}/3dmodels/Duc.3dshapes/LQFP-64_L10.0-W10.0-H1.4-LS12.0-P0.50.wrl"
+		(hide yes)
+		(offset
+			(xyz 0 0 0)
+		)
+		(scale
+			(xyz 1 1 1)
+		)
+		(rotate
+			(xyz 0 0 0)
+		)
+	)
+	(model "${KICAD_USER_LIB}/3dmodels/Duc.3dshapes/LQFP-64_L10.0-W10.0-H1.4-LS12.0-P0.50.step"
 		(offset
 			(xyz 0 0 0)
 		)

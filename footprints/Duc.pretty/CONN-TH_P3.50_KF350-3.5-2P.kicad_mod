@@ -294,6 +294,18 @@
 	)
 	(embedded_fonts no)
 	(model "${KICAD_USER_LIB}/3dmodels/Duc.3dshapes/CONN-TH_P3.50_KF350-3.5-2P.wrl"
+		(hide yes)
+		(offset
+			(xyz 0 0 0)
+		)
+		(scale
+			(xyz 1 1 1)
+		)
+		(rotate
+			(xyz 0 0 0)
+		)
+	)
+	(model "${KICAD_USER_LIB}/3dmodels/Duc.3dshapes/CONN-TH_P3.50_KF350-3.5-2P.step"
 		(offset
 			(xyz 0 0 0)
 		)
